@@ -24,7 +24,7 @@ The name comes from the *hippocampus*, Greek for seahorse: the part of the brain
 
 ```bash
 cd ~/code/your-app
-npx github:OWNER/seahorse
+npx github:mostafahussien19/seahorse
 ```
 
 Open **http://localhost:4600**. A repository without an agent team opens on **Setup**:
@@ -41,7 +41,7 @@ Then open the Backlog, drag an item onto the Lead, and the team starts working.
 The repo ships a fictional project that's already set up, so you can see everything before running Setup:
 
 ```bash
-git clone https://github.com/OWNER/seahorse.git
+git clone https://github.com/mostafahussien19/seahorse.git
 cd seahorse
 node server.mjs examples/acme-billing
 ```
@@ -182,7 +182,7 @@ Light and dark themes follow your system, with a switch in the header.
 
 | Setting | Default | What it does |
 |---|---|---|
-| First argument | current folder | The project to open: `npx github:OWNER/seahorse ~/code/app` |
+| First argument | current folder | The project to open: `npx github:mostafahussien19/seahorse ~/code/app` |
 | `PORT` | `4600` | The port for the board |
 | `BOARD_NO_TERMINAL=1` | off | Show agent commands to copy instead of opening Terminal |
 | `WORKSPACE` | | Same as the first argument |
