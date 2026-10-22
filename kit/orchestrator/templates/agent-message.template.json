@@ -1,0 +1,17 @@
+{
+  "project_id": "{{project_id}}",
+  "agent_id": "{{agent_id}}",
+  "role": "{{role}}",
+  "status": "pending",
+  "approach_summary": "",
+  "reads": [],
+  "writes": [],
+  "files_touched": [],
+  "surprises": [],
+  "assumptions": [],
+  "findings": [],
+  "blockers": [],
+  "handoff_to": [],
+  "user_feedback": [],
+  "updated_at": "{{updated_at}}"
+}

@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Spec",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "project_id",
+    "version",
+    "status",
+    "decisions",
+    "contracts",
+    "implementation_notes",
+    "updated_by",
+    "updated_at"
+  ],
+  "properties": {
+    "project_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": ["draft", "approved", "blocked", "superseded"]
+    },
+    "decisions": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "contracts": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "implementation_notes": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "updated_by": {
+      "type": "string"
+    },
+    "updated_at": {
+      "type": "string"
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "name": "seahorse",
+  "version": "0.1.0",
+  "description": "A live board and memory for a team of Claude Code agents: onboarding, backlog, workflow handoffs, lessons, skills and feedback.",
+  "type": "module",
+  "bin": { "seahorse": "./server.mjs" },
+  "files": ["server.mjs", "lib/", "kit/", "public/", "docs/", "README.md", "LICENSE"],
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test"
+  },
+  "engines": { "node": ">=20" },
+  "keywords": ["claude", "claude-code", "agents", "multi-agent", "orchestrator", "kanban", "developer-tools"],
+  "license": "MIT"
+}

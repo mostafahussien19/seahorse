@@ -1,0 +1,10 @@
+{
+  "project_id": "{{project_id}}",
+  "version": "v1",
+  "status": "draft",
+  "decisions": [],
+  "contracts": [],
+  "implementation_notes": [],
+  "updated_by": "lead_agent",
+  "updated_at": "{{updated_at}}"
+}

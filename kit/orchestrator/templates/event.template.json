@@ -1,0 +1,7 @@
+{
+  "timestamp": "{{timestamp}}",
+  "actor": "lead_agent",
+  "event": "{{event}}",
+  "note": "{{note}}",
+  "user_feedback": []
+}

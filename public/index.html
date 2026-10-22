@@ -1,0 +1,2097 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Seahorse</title>
+<script>
+  // Apply the saved theme before first paint so the page doesn't flash.
+  try { const t = localStorage.getItem('seahorse-theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch {}
+</script>
+<style>
+/* Direction: DESIGN.md (lab notebook). All text/background pairs checked for WCAG AA. */
+:root {
+  --paper: #f4efe4;
+  --paper-2: #ebe4d4;
+  --card: #fbf8f1;
+  --rule: #d8cfbb;
+  --rule-strong: #b9ad94;
+  --ink: #25221c;
+  --ink-2: #5f584b;
+  --blue: #1f3d63;
+  --blue-wash: #e1e6ee;
+  --red: #9a2a22;
+  --red-wash: #f5e1dc;
+  --on-red: #ffffff;
+  --on-blue: #fbf8f1;
+  --scrim: rgb(37 34 28 / 0.35);
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  --sans: ui-sans-serif, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #1b1915; --paper-2: #24211b; --card: #2b2721; --rule: #3a352c; --rule-strong: #4d463a;
+    --ink: #ede5d4; --ink-2: #b3a993; --blue: #a9c1e3; --blue-wash: #25303f;
+    --red: #ee9a8c; --red-wash: #3e231d; --on-red: #1b1915; --on-blue: #1b1915; --scrim: rgb(0 0 0 / 0.5);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #1b1915; --paper-2: #24211b; --card: #2b2721; --rule: #3a352c; --rule-strong: #4d463a;
+  --ink: #ede5d4; --ink-2: #b3a993; --blue: #a9c1e3; --blue-wash: #25303f;
+  --red: #ee9a8c; --red-wash: #3e231d; --on-red: #1b1915; --on-blue: #1b1915; --scrim: rgb(0 0 0 / 0.5);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--paper); color: var(--ink); font: 14px/1.55 var(--sans); }
+button, input, select { font: inherit; color: inherit; }
+a { color: var(--blue); text-underline-offset: 2px; }
+.mono, code, pre { font-family: var(--mono); font-size: 12.5px; }
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+
+/* ---------- masthead ---------- */
+header {
+  display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px 28px;
+  padding: 18px 28px 0; border-bottom: 3px double var(--rule-strong); background: var(--paper);
+  position: sticky; top: 0; z-index: 5;
+}
+.brand { padding-bottom: 12px; }
+.wordmark { font-family: var(--serif); font-style: italic; font-size: 26px; line-height: 1; margin: 0; font-weight: 600; }
+.brand .sub { color: var(--ink-2); font-size: 12.5px; margin-top: 4px; }
+nav { display: flex; gap: 2px; align-self: flex-end; }
+nav a {
+  display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 12px;
+  text-decoration: none; color: var(--ink-2); border-bottom: 2px solid transparent; margin-bottom: -2px;
+  font-family: var(--serif); font-size: 16px;
+}
+nav a:hover { color: var(--ink); }
+nav a[aria-current="page"] { color: var(--ink); border-bottom-color: var(--blue); }
+nav .count { font-family: var(--sans); font-size: 12px; color: var(--ink-2); }
+.meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin-left: auto; padding-bottom: 12px; color: var(--ink-2); font-size: 13px; }
+.live { display: inline-flex; align-items: center; gap: 6px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--rule-strong); }
+.live.on .dot { background: var(--blue); }
+.live.off .dot { background: var(--red); }
+.theme-btn {
+  background: none; border: 1px solid var(--rule-strong); border-radius: 4px; min-height: 32px; padding: 0 10px;
+  cursor: pointer; color: var(--ink-2); font-size: 12.5px;
+}
+.theme-btn:hover { color: var(--ink); border-color: var(--ink-2); }
+
+/* ---------- page ---------- */
+main { padding: 24px 28px 56px; max-width: 1480px; margin: 0 auto; }
+.page-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; margin: 0 0 18px; }
+.page-head h2 { font-family: var(--serif); font-size: 28px; font-weight: 600; margin: 0; }
+.page-head p { margin: 0; color: var(--ink-2); }
+h3.rule {
+  font-family: var(--serif); font-size: 17px; font-weight: 600; margin: 28px 0 10px; padding-bottom: 4px;
+  border-bottom: 3px double var(--rule); display: flex; justify-content: space-between; align-items: baseline; gap: 12px;
+}
+h3.rule small { font-family: var(--sans); font-size: 12.5px; font-weight: 400; color: var(--ink-2); }
+.notice { border: 1px solid var(--red); background: var(--red-wash); color: var(--ink); border-radius: 4px; padding: 10px 14px; margin-bottom: 18px; }
+.empty { color: var(--ink-2); padding: 10px 4px; font-size: 13px; }
+.loading { font-family: var(--serif); font-style: italic; color: var(--ink-2); font-size: 16px; padding: 24px 0; }
+
+/* ---------- controls ---------- */
+.toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin: 22px 0 16px; align-items: center; }
+.toolbar input[type="search"] { flex: 1 1 220px; max-width: 340px; }
+.toolbar input[type="search"], .toolbar select {
+  background: var(--card); border: 1px solid var(--rule-strong); border-radius: 4px; padding: 0 10px; min-height: 40px;
+}
+.toolbar label.check { display: inline-flex; align-items: center; gap: 8px; color: var(--ink-2); padding: 0 6px; min-height: 40px; cursor: pointer; }
+.toolbar label.check input { width: 16px; height: 16px; accent-color: var(--blue); }
+.summary { color: var(--ink-2); font-size: 13px; margin-left: auto; }
+.btn {
+  display: inline-flex; align-items: center; min-height: 40px; padding: 0 14px; border-radius: 4px; cursor: pointer;
+  background: var(--blue); color: var(--on-blue); border: 1px solid var(--blue); font-weight: 600;
+}
+.btn.secondary { background: var(--card); color: var(--blue); }
+a.btn { text-decoration: none; }
+.btn:hover { filter: brightness(1.08); }
+
+/* ---------- agent bench (drop zones) ---------- */
+.bench { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(170px, 100%), 1fr)); gap: 10px; }
+.zone {
+  border: 1.5px dashed var(--rule-strong); border-radius: 4px; padding: 10px 12px; background: transparent;
+  transition: border-color 120ms, background-color 120ms, opacity 120ms;
+}
+.zone .zname { font-family: var(--serif); font-size: 16px; font-weight: 600; }
+.zone .zcmd { color: var(--ink-2); font-size: 11.5px; overflow-wrap: anywhere; }
+.zone .zhint { color: var(--ink-2); font-size: 12.5px; margin-top: 4px; }
+.touch-note { display: none; color: var(--ink-2); }
+/* Native drag and drop doesn't work with touch, so phones get the panel buttons instead of drop zones. */
+@media (max-width: 760px), (pointer: coarse) {
+  .bench { display: none; }
+  .touch-note { display: block; }
+  .bench-hint { display: none; }
+}
+body.dragging .zone { opacity: 0.45; }
+body.dragging .zone.valid { opacity: 1; border-color: var(--red); background: var(--card); }
+body.dragging .zone.valid.over { background: var(--red-wash); border-style: solid; }
+
+/* ---------- board ---------- */
+.board { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(290px, 100%), 1fr)); gap: 18px; align-items: start; }
+.column { background: var(--paper-2); border-radius: 4px; padding: 4px 10px 10px; min-width: 0; }
+.column h3 {
+  font-family: var(--serif); font-size: 17px; font-weight: 600; margin: 8px 2px 10px; padding-bottom: 4px;
+  border-bottom: 3px double var(--rule-strong); display: flex; justify-content: space-between; align-items: baseline;
+}
+.column h3 span:last-child { font-family: var(--sans); font-size: 12.5px; font-weight: 400; color: var(--ink-2); }
+.cards { display: flex; flex-direction: column; gap: 8px; }
+.card {
+  display: block; width: 100%; text-align: left; background: var(--card); border: 1px solid var(--rule);
+  border-radius: 4px; padding: 10px 12px; cursor: pointer; color: var(--ink);
+  transition: border-color 120ms;
+}
+.card:hover { border-color: var(--blue); }
+.card[draggable="true"] { cursor: grab; }
+.card.drag-source { opacity: 0.5; }
+.card .top { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.card .id { color: var(--ink-2); font-size: 12px; }
+.card .title { font-weight: 550; overflow-wrap: anywhere; }
+.card .foot { display: flex; flex-wrap: wrap; gap: 2px 10px; margin-top: 6px; color: var(--ink-2); font-size: 12.5px; }
+.card.more { text-align: center; color: var(--blue); font-weight: 600; border-style: dashed; min-height: 44px; }
+.lane { margin-bottom: 4px; }
+.lane .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(290px, 100%), 1fr)); gap: 8px; }
+
+.badge {
+  display: inline-block; padding: 0 7px; border-radius: 3px; font-size: 11.5px; font-weight: 600; line-height: 18px;
+  white-space: nowrap; border: 1px solid transparent;
+}
+.badge.p-critical { background: var(--red); color: var(--on-red); }
+.badge.p-high { background: var(--red-wash); color: var(--red); }
+.badge.p-medium { border-color: var(--rule-strong); color: var(--ink); }
+.badge.p-low { color: var(--ink-2); border-color: var(--rule); }
+.badge.s-blue { background: var(--blue-wash); color: var(--blue); }
+.badge.s-red { background: var(--red-wash); color: var(--red); }
+.badge.s-muted { color: var(--ink-2); border-color: var(--rule); }
+.tag { color: var(--ink-2); font-size: 12px; }
+
+/* ---------- projects ---------- */
+.projects { display: flex; flex-direction: column; gap: 8px; }
+.project { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) 240px; gap: 18px; align-items: center; }
+.project .name { font-family: var(--serif); font-size: 16px; font-weight: 600; overflow-wrap: anywhere; }
+.project .sub { color: var(--ink-2); font-size: 12.5px; display: flex; flex-wrap: wrap; gap: 2px 12px; margin-top: 2px; }
+.project .right { display: flex; gap: 6px; align-items: center; justify-content: flex-end; flex-wrap: wrap; }
+.project.active { border-color: var(--blue); border-width: 2px; }
+.phases { display: flex; gap: 3px; }
+.phases span { flex: 1; height: 5px; border-radius: 1px; background: var(--rule); }
+.phases span.done { background: var(--ink-2); }
+.phases span.current { background: var(--red); }
+.phase-label { font-size: 12px; color: var(--ink-2); margin-top: 4px; }
+
+/* ---------- lessons ---------- */
+.lesson-list { display: flex; flex-direction: column; gap: 8px; }
+.lesson-row { display: grid; grid-template-columns: 112px minmax(0, 1fr) minmax(0, 300px); gap: 16px; align-items: start; }
+.lesson-row .lr-id { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+.lesson-row .lr-title { font-family: var(--serif); font-size: 16px; font-weight: 600; line-height: 1.35; }
+.lesson-row .lr-desc {
+  color: var(--ink-2); margin-top: 2px;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.lesson-row .lr-meta { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; font-size: 12.5px; color: var(--ink-2); }
+.lesson-row.retired { border-style: dashed; background: transparent; }
+.pin { color: var(--blue); }
+.mini-list { display: flex; flex-direction: column; gap: 6px; }
+.mini {
+  display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; text-align: left; width: 100%;
+  background: var(--card); border: 1px solid var(--rule); border-radius: 4px; padding: 8px 10px; cursor: pointer; color: var(--ink);
+}
+.mini:hover { border-color: var(--blue); }
+.quote { color: var(--ink-2); border-left: 1px solid var(--rule-strong); padding-left: 10px; margin: 4px 0 0; }
+.check-row {
+  display: flex; align-items: center; gap: 12px; min-height: 44px; border-bottom: 1px solid var(--rule); cursor: pointer;
+}
+.check-row input { width: 18px; height: 18px; accent-color: var(--blue); flex: none; }
+.check-row .mono { color: var(--ink-2); margin-left: auto; overflow-wrap: anywhere; }
+.zone .zpins { color: var(--blue); font-size: 12px; margin-top: 4px; }
+
+/* ---------- workflow ---------- */
+.next { border: 2px solid var(--blue); background: var(--card); border-radius: 4px; padding: 16px 18px; margin-bottom: 8px; }
+.next h3 { font-family: var(--serif); font-size: 19px; font-weight: 600; margin: 0 0 4px; }
+.next p { margin: 0; color: var(--ink-2); }
+.flow { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 28px; margin-top: 4px; }
+.stage { position: relative; border-top: 3px double var(--rule-strong); padding-top: 8px; min-width: 0; }
+.stage:not(:last-child)::after {
+  content: ""; position: absolute; right: -19px; top: 14px; width: 9px; height: 9px;
+  border-top: 2px solid var(--rule-strong); border-right: 2px solid var(--rule-strong); transform: rotate(45deg);
+}
+.stage-head { font-family: var(--serif); font-size: 16px; font-weight: 600; margin-bottom: 8px; display: flex; gap: 8px; align-items: baseline; }
+.stage-head small { font-family: var(--sans); font-size: 12px; font-weight: 400; color: var(--ink-2); }
+.stage.current { border-top: 3px solid var(--red); }
+.stage.current .stage-head { color: var(--red); }
+.node { background: var(--card); border: 1px solid var(--rule); border-radius: 4px; padding: 10px 12px; margin-bottom: 8px; }
+.node .nname { font-weight: 600; display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+.node .nlast { color: var(--ink-2); font-size: 12.5px; margin-top: 4px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.log { display: flex; flex-direction: column; }
+.log .entry-line { display: grid; grid-template-columns: 150px 150px minmax(0, 1fr); gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--rule); align-items: baseline; }
+.log .entry-line .who { font-weight: 600; }
+.log .entry-line .what { overflow-wrap: anywhere; }
+.select-inline { background: var(--card); border: 1px solid var(--rule-strong); border-radius: 4px; padding: 0 10px; min-height: 40px; max-width: 100%; }
+
+/* ---------- agents + skills ---------- */
+.agent-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(330px, 100%), 1fr)); gap: 12px; }
+.agent-card { background: var(--card); border: 1px solid var(--rule); border-radius: 4px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.agent-card h4 { font-family: var(--serif); font-size: 18px; font-weight: 600; margin: 0; }
+.agent-card .desc { color: var(--ink-2); font-size: 13px; }
+.agent-card .actions { margin: auto 0 0; }
+.chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.chip { border: 1px solid var(--rule-strong); border-radius: 3px; padding: 0 7px; font-size: 12px; line-height: 20px; color: var(--ink); overflow-wrap: anywhere; }
+.chip.blue { border-color: transparent; background: var(--blue-wash); color: var(--blue); }
+.label-sm { font-size: 12px; color: var(--ink-2); }
+.plugin-list { display: flex; flex-direction: column; gap: 8px; }
+.plugin-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: center; background: var(--card); border: 1px solid var(--rule); border-radius: 4px; padding: 10px 14px; }
+.plugin-row .pname { font-weight: 600; overflow-wrap: anywhere; }
+.plugin-row .pdesc { color: var(--ink-2); font-size: 13px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-top: 2px; }
+.plugin-row .pmeta { display: flex; flex-wrap: wrap; gap: 2px 12px; color: var(--ink-2); font-size: 12px; margin-top: 4px; }
+.plugin-row .open-btn { background: none; border: 0; padding: 0; text-align: left; cursor: pointer; color: var(--ink); width: 100%; }
+.btn:disabled { opacity: 0.55; cursor: progress; filter: none; }
+.field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 14px; }
+.field label { font-weight: 600; }
+.field .hint { color: var(--ink-2); font-size: 12.5px; }
+.field input, .field textarea {
+  background: var(--card); border: 1px solid var(--rule-strong); border-radius: 4px; padding: 8px 10px; min-height: 40px; width: 100%;
+}
+.field textarea { min-height: 96px; resize: vertical; font-family: var(--sans); }
+.form-error { color: var(--red); font-weight: 600; margin: 0 0 12px; }
+.steps { padding-left: 20px; }
+.steps li { margin: 6px 0; }
+
+/* ---------- setup + feedback ---------- */
+.step { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 14px; margin: 26px 0; }
+.step-num {
+  font-family: var(--serif); font-size: 22px; font-weight: 600; width: 40px; height: 40px; border-radius: 50%;
+  border: 1.5px solid var(--rule-strong); display: flex; align-items: center; justify-content: center; color: var(--ink-2);
+}
+.step.done .step-num { border-color: var(--ink-2); color: var(--ink); }
+.step.current .step-num { border-color: var(--red); color: var(--red); }
+.step h3 { font-family: var(--serif); font-size: 20px; font-weight: 600; margin: 6px 0 6px; }
+.step > div > p { margin: 0 0 10px; color: var(--ink-2); }
+.panel { background: var(--card); border: 1px solid var(--rule); border-radius: 4px; padding: 12px 14px; margin-bottom: 10px; }
+.panel h4 { font-family: var(--serif); font-size: 16px; margin: 0 0 4px; }
+.pick { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 10px; align-items: start; }
+.pick input[type="checkbox"] { width: 18px; height: 18px; margin-top: 3px; accent-color: var(--blue); }
+.pick textarea { width: 100%; min-height: 60px; background: var(--paper); border: 1px solid var(--rule-strong); border-radius: 4px; padding: 6px 8px; font-family: var(--mono); font-size: 12.5px; }
+.table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.table th, .table td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--rule); vertical-align: top; overflow-wrap: anywhere; }
+.table th { font-weight: 600; color: var(--ink-2); }
+.progress li { margin: 4px 0; }
+.repeat { border: 1px solid var(--red); border-radius: 4px; background: var(--card); padding: 12px 14px; margin-bottom: 12px; }
+.repeat h4 { font-family: var(--serif); font-size: 17px; margin: 0 0 2px; }
+.ev-list { list-style: none; padding: 0; margin: 8px 0; }
+.ev-list li { padding: 6px 0; border-top: 1px solid var(--rule); display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 10px; }
+.proposal { border: 1px solid var(--rule-strong); border-radius: 4px; padding: 10px 12px; margin-top: 8px; background: var(--paper); }
+.proposal.accepted, .proposal.dismissed { border-style: dashed; }
+.fb-form { display: grid; grid-template-columns: minmax(0, 200px) minmax(0, 220px) minmax(0, 1fr); gap: 8px; align-items: start; }
+.fb-form textarea { min-height: 40px; height: 40px; resize: vertical; background: var(--card); border: 1px solid var(--rule-strong); border-radius: 4px; padding: 8px 10px; font-family: var(--sans); }
+.btn.small { min-height: 32px; padding: 0 10px; font-size: 12.5px; font-weight: 600; }
+.link-btn { background: none; border: 0; padding: 0; color: var(--blue); text-decoration: underline; text-underline-offset: 2px; cursor: pointer; font-size: 12.5px; }
+
+/* ---------- detail panel ---------- */
+.scrim { position: fixed; inset: 0; background: var(--scrim); z-index: 10; }
+.drawer {
+  position: fixed; top: 0; right: 0; bottom: 0; width: min(760px, 100vw); background: var(--paper);
+  border-left: 1px solid var(--rule-strong); z-index: 11; display: flex; flex-direction: column;
+  box-shadow: -12px 0 32px rgb(0 0 0 / 0.18);
+}
+.drawer-head { display: flex; align-items: flex-start; gap: 12px; padding: 18px 22px 12px; border-bottom: 3px double var(--rule-strong); }
+.drawer-head h2 { font-family: var(--serif); font-size: 21px; font-weight: 600; line-height: 1.3; margin: 6px 0 0; overflow-wrap: anywhere; }
+.drawer-head .eyebrow { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.drawer-head .close { margin-left: auto; flex: none; }
+.drawer-body { overflow-y: auto; padding: 0 22px 36px; }
+.kv { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; margin: 0; }
+.kv dt { color: var(--ink-2); }
+.kv dd { margin: 0; overflow-wrap: anywhere; }
+.prose { white-space: pre-wrap; overflow-wrap: anywhere; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 4px; }
+details.entry { background: var(--card); border: 1px solid var(--rule); border-radius: 4px; padding: 10px 12px; margin-bottom: 8px; }
+details.entry > summary { cursor: pointer; list-style: none; display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; min-height: 24px; }
+details.entry > summary::-webkit-details-marker { display: none; }
+details.entry > summary::before { content: "+"; font-family: var(--mono); color: var(--ink-2); width: 10px; }
+details.entry[open] > summary::before { content: "\2212"; }
+details.entry[open] > summary { margin-bottom: 8px; }
+details.entry h5 { font-family: var(--serif); font-size: 14px; margin: 12px 0 4px; }
+ul.plain { margin: 4px 0; padding-left: 18px; }
+ul.plain li { margin: 2px 0; overflow-wrap: anywhere; }
+.timeline { border-left: 1px solid var(--rule-strong); margin-left: 4px; padding-left: 16px; }
+.timeline .ev { margin-bottom: 14px; }
+.timeline .when { color: var(--ink-2); font-size: 12px; }
+.timeline .what { font-family: var(--serif); font-weight: 600; }
+pre.json { background: var(--paper-2); padding: 8px 10px; border-radius: 4px; overflow-x: auto; margin: 4px 0; }
+.md { font-size: 14px; }
+.md h1, .md h2, .md h3, .md h4 { font-family: var(--serif); margin: 18px 0 6px; line-height: 1.3; }
+.md h1 { font-size: 20px; } .md h2 { font-size: 17px; } .md h3, .md h4 { font-size: 15px; }
+.md blockquote { color: var(--ink-2); border-left: 1px solid var(--rule-strong); margin: 6px 0; padding-left: 10px; }
+.md ul { padding-left: 20px; margin: 6px 0; }
+.md li { overflow-wrap: anywhere; }
+.md li.task { list-style: none; margin-left: -18px; }
+.md pre { background: var(--paper-2); padding: 8px 10px; border-radius: 4px; overflow-x: auto; }
+.md :not(pre) > code { background: var(--paper-2); padding: 0 4px; border-radius: 3px; }
+
+/* ---------- toast ---------- */
+.toast {
+  position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); z-index: 20; width: max-content; max-width: min(640px, calc(100vw - 32px));
+  background: var(--card); border: 1px solid var(--rule-strong); border-radius: 4px; padding: 12px 14px;
+  box-shadow: 0 8px 28px rgb(0 0 0 / 0.2);
+}
+.toast.error { border-color: var(--red); }
+.toast .row { display: flex; gap: 12px; align-items: flex-start; }
+.toast .row > div { flex: 1; min-width: 0; }
+.toast pre { white-space: pre-wrap; word-break: break-all; background: var(--paper-2); padding: 6px 8px; border-radius: 4px; margin: 8px 0 0; }
+
+@media (max-width: 760px) {
+  header { padding: 14px 16px 0; gap: 4px 16px; }
+  .meta { margin-left: 0; width: 100%; order: 2; padding-bottom: 6px; }
+  nav { order: 3; width: 100%; overflow-x: auto; scrollbar-width: none; }
+  nav a { min-height: 44px; flex: none; }
+  .flow { grid-template-columns: 1fr; gap: 22px; }
+  .stage:not(:last-child)::after { right: auto; left: 50%; top: auto; bottom: -16px; transform: rotate(135deg); }
+  .log .entry-line { grid-template-columns: 1fr; gap: 2px; }
+  .plugin-row { grid-template-columns: 1fr; }
+  .select-inline { min-height: 44px; width: 100%; }
+  .field input { min-height: 44px; }
+  .step { grid-template-columns: 1fr; gap: 6px; }
+  .fb-form { grid-template-columns: 1fr; }
+  .fb-form select, .fb-form textarea { min-height: 44px; }
+  .ev-list li { grid-template-columns: 1fr; gap: 2px; }
+  .btn.small, .link-btn { min-height: 44px; }
+  main { padding: 18px 16px 48px; }
+  .toolbar input[type="search"], .toolbar select, .btn, .toolbar label.check { min-height: 44px; }
+  .toolbar input[type="search"] { max-width: none; flex-basis: 100%; }
+  .theme-btn { min-height: 44px; }
+  .summary { margin-left: 0; width: 100%; }
+  .project, .lesson-row { grid-template-columns: 1fr; gap: 8px; }
+  .lesson-row .lr-id { flex-direction: row; }
+  .lesson-row .lr-meta { justify-content: flex-start; }
+  .project .right { justify-content: flex-start; }
+  .drawer-head, .drawer-body { padding-left: 16px; padding-right: 16px; }
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <h1 class="wordmark">Seahorse</h1>
+    <div class="sub" id="ws">Field notes</div>
+  </div>
+  <nav id="nav" aria-label="Views"></nav>
+  <div class="meta">
+    <span id="active"></span>
+    <a href="#/setup" id="setup-link" hidden>Setup</a>
+    <span class="live" id="live"><span class="dot" aria-hidden="true"></span><span id="live-text">Connecting</span></span>
+    <button class="theme-btn" id="theme" type="button"></button>
+  </div>
+</header>
+<main id="main"><p class="loading">Reading orchestrator files…</p></main>
+<div id="drawer-root"></div>
+<div id="toast-root" aria-live="polite"></div>
+
+<script>
+const TOKEN = '__BOARD_TOKEN__';
+const ROLES = {
+  lead_agent: { name: 'Lead', hint: 'Backlog items: triage into a project' },
+  feature_strategist: { name: 'Strategist', hint: 'Backlog items: scope an idea' },
+  backend_agent: { name: 'Backend', hint: 'Its tasks in the active project' },
+  frontend_agent: { name: 'Frontend', hint: 'Its tasks in the active project' },
+  reviewer_agent: { name: 'Reviewer', hint: 'Its tasks in the active project' },
+  codebase_archaeologist: { name: 'Archaeologist', hint: 'Keeps docs in sync with the code' },
+};
+// Every agent that isn't one of the four coordinators is a worker (backend_agent, api_agent, web_agent…).
+const CORE_ROLES = ['lead_agent', 'feature_strategist', 'reviewer_agent', 'codebase_archaeologist'];
+const workerRoles = () => Object.keys(state?.agents ?? {}).filter((r) => !CORE_ROLES.includes(r)).sort();
+// Roles that accept drops on the backlog bench.
+const benchRoles = () => ['lead_agent', 'feature_strategist', ...workerRoles(), 'reviewer_agent'].filter((r) => state?.agents?.[r]);
+const VIEWS = ['backlog', 'workflow', 'projects', 'agents', 'skills', 'lessons', 'feedback', 'setup'];
+const PRIORITY_RANK = { critical: 0, high: 1, medium: 2, low: 3 };
+const STATUS_ORDER = ['pending', 'in_progress', 'blocked', 'needs_review', 'review', 'done'];
+const PHASES = ['task_defined', 'research', 'spec_ready', 'implementation', 'review', 'done'];
+
+let state = null;
+const ui = {
+  q: '', priority: '', assignee: '', kind: '', showDone: false,
+  lessonQ: '', severity: '', lessonOpenOnly: false, showRetired: false,
+  workflowProject: '', workflowActiveSeen: undefined, logLimit: 12,
+  marketQ: '', marketCat: '', marketSrc: '', marketSort: 'popular', marketLimit: 40,
+  newAgentError: null, newAgentResult: null, newAgentPrefill: null, newAgentProposal: null,
+  fbAgent: '', fbProject: '', fbText: '', fbFilterAgent: '', fbFilterSource: '',
+  ob: null,
+  drawer: null,
+};
+const reviewCache = new Map();
+
+// ---------- helpers ----------
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const label = (s) => String(s ?? '').replace(/_/g, ' ');
+const cap = (s) => { const t = label(s); return t.charAt(0).toUpperCase() + t.slice(1); };
+const fmtDate = (iso) => {
+  const d = new Date(iso);
+  return iso && !isNaN(d) ? d.toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : esc(iso ?? '');
+};
+const fmtDay = (iso) => {
+  const d = new Date(iso);
+  return iso && !isNaN(d) ? d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+};
+const prioBadge = (p) => p ? `<span class="badge p-${esc(p)}">${esc(p)}</span>` : '';
+const statusBadge = (s) => {
+  if (!s) return '';
+  const cls = s === 'done' || s === 'skipped' ? 's-muted' : s === 'blocked' ? 's-red' : 's-blue';
+  return `<span class="badge ${cls}">${esc(label(s))}</span>`;
+};
+const kindOf = (id) => String(id).split('-')[0];
+const items = () => state?.backlog?.items ?? [];
+const lessons = () => state?.lessons?.lessons ?? (Array.isArray(state?.lessons) ? state.lessons : []);
+const agents = () => state?.agents ?? {};
+const projectList = () => {
+  const meta = state?.orchestrator?.projects ?? {};
+  return (state?.projects ?? []).map((p) => ({ ...p, meta: meta[p.id] ?? {} }))
+    .sort((a, b) => String(b.meta.created_at ?? '').localeCompare(String(a.meta.created_at ?? '')));
+};
+const projectStatus = (p) => p.status?.overall_status ?? p.meta.status;
+const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
+
+function verdictOf(p) {
+  const msgs = p.messages?.reviewer_agent;
+  if (!Array.isArray(msgs) || !msgs.length) return null;
+  const s = String(msgs[msgs.length - 1].approach_summary ?? '').toLowerCase();
+  if (s.includes('changes_requested') || s.includes('changes requested')) return 'changes requested';
+  if (s.includes('approved')) return 'approved';
+  return null;
+}
+
+// Agent message fields have no fixed shape, so render whatever JSON arrives.
+function renderValue(v) {
+  if (v == null || v === '' || (Array.isArray(v) && !v.length)) return '<span class="tag">None</span>';
+  if (Array.isArray(v)) {
+    if (v.every((x) => typeof x !== 'object' || x === null)) return `<ul class="plain">${v.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>`;
+    return `<ul class="plain">${v.map((x) => `<li>${renderValue(x)}</li>`).join('')}</ul>`;
+  }
+  if (typeof v === 'object') return `<pre class="json">${esc(JSON.stringify(v, null, 2))}</pre>`;
+  return `<span class="prose">${esc(v)}</span>`;
+}
+
+// Minimal markdown for reviewer reports. Text is escaped before any markup is added.
+function renderMarkdown(src) {
+  const inline = (s) => esc(s).replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  const out = [];
+  let inList = false, inCode = false, code = [];
+  const closeList = () => { if (inList) { out.push('</ul>'); inList = false; } };
+  for (const line of src.split('\n')) {
+    if (line.startsWith('```')) {
+      if (inCode) { out.push(`<pre>${esc(code.join('\n'))}</pre>`); code = []; inCode = false; }
+      else { closeList(); inCode = true; }
+      continue;
+    }
+    if (inCode) { code.push(line); continue; }
+    let m;
+    if ((m = line.match(/^(#{1,4})\s+(.*)$/))) { closeList(); out.push(`<h${m[1].length}>${inline(m[2])}</h${m[1].length}>`); continue; }
+    if ((m = line.match(/^\s*[-*]\s+\[([ xX])\]\s+(.*)$/))) {
+      if (!inList) { out.push('<ul>'); inList = true; }
+      out.push(`<li class="task">${m[1].trim() ? '☑' : '☐'} ${inline(m[2])}</li>`); continue;
+    }
+    if ((m = line.match(/^\s*[-*]\s+(.*)$/))) {
+      if (!inList) { out.push('<ul>'); inList = true; }
+      out.push(`<li>${inline(m[1])}</li>`); continue;
+    }
+    closeList();
+    if ((m = line.match(/^>\s?(.*)$/))) { out.push(`<blockquote>${inline(m[1])}</blockquote>`); continue; }
+    if (line.trim()) out.push(`<p>${inline(line)}</p>`);
+  }
+  closeList();
+  if (inCode) out.push(`<pre>${esc(code.join('\n'))}</pre>`);
+  return out.join('\n');
+}
+
+// ---------- theme ----------
+const THEMES = ['system', 'light', 'dark'];
+function currentTheme() { return document.documentElement.dataset.theme || 'system'; }
+function renderThemeButton() {
+  document.getElementById('theme').textContent = `Theme: ${cap(currentTheme())}`;
+}
+document.getElementById('theme').addEventListener('click', () => {
+  const next = THEMES[(THEMES.indexOf(currentTheme()) + 1) % THEMES.length];
+  if (next === 'system') delete document.documentElement.dataset.theme;
+  else document.documentElement.dataset.theme = next;
+  try { next === 'system' ? localStorage.removeItem('seahorse-theme') : localStorage.setItem('seahorse-theme', next); } catch {}
+  renderThemeButton();
+});
+renderThemeButton();
+
+// ---------- routing + header ----------
+function route() {
+  const view = location.hash.replace(/^#\/?/, '').split('/')[0];
+  // A workspace that isn't set up yet only has onboarding and the plugin catalog. The address
+  // follows, so finishing setup keeps you on the Setup page with its report and next steps.
+  if (state && !state.configured) {
+    if (view !== 'skills' && view !== 'setup') history.replaceState(null, '', '#/setup');
+    return view === 'skills' ? 'skills' : 'setup';
+  }
+  return VIEWS.includes(view) ? view : 'backlog';
+}
+
+function renderHeader() {
+  document.getElementById('ws').textContent = state.workspace ? `Field notes for ${state.workspace}` : 'Field notes';
+  const active = state.orchestrator?.active_project;
+  document.getElementById('active').innerHTML = active
+    ? `Active: <a href="#/projects" data-open-project="${esc(active)}">${esc(active)}</a>`
+    : 'No active project';
+  const view = route();
+  const open = items().filter((i) => i.status !== 'done').length;
+  const repeats = openRepeats().length;
+  const tabs = state.configured ? [
+    ['backlog', 'Backlog', `${open} open`],
+    ['workflow', 'Workflow', state.orchestrator?.active_project ? 'running' : ''],
+    ['projects', 'Projects', projectList().length],
+    ['agents', 'Agents', Object.keys(agents()).length],
+    ['skills', 'Skills', market.data ? market.data.installed.length || '' : ''],
+    ['lessons', 'Lessons', lessons().length],
+    ['feedback', 'Feedback', repeats ? `${repeats} repeating` : ''],
+  ] : [['setup', 'Setup', ''], ['skills', 'Skills', '']];
+  document.getElementById('setup-link').hidden = !state.configured;
+  document.getElementById('setup-link').toggleAttribute('aria-current', route() === 'setup');
+  document.getElementById('nav').innerHTML = tabs.map(([id, name, count]) =>
+    `<a href="#/${id}" ${view === id ? 'aria-current="page"' : ''}>${name}<span class="count">${esc(count)}</span></a>`).join('');
+}
+
+// ---------- backlog ----------
+function filteredItems() {
+  const q = ui.q.trim().toLowerCase();
+  return items().filter((i) => {
+    if (ui.priority && i.priority !== ui.priority) return false;
+    if (ui.assignee && i.assigned_to !== ui.assignee) return false;
+    if (ui.kind && kindOf(i.id) !== ui.kind) return false;
+    if (q && ![i.id, i.title, i.description, i.assigned_to, ...(i.labels ?? [])].join(' ').toLowerCase().includes(q)) return false;
+    return true;
+  });
+}
+
+function options(values, selected, allLabel) {
+  return `<option value="">${allLabel}</option>` + values.map((v) =>
+    `<option value="${esc(v)}" ${v === selected ? 'selected' : ''}>${esc(cap(v))}</option>`).join('');
+}
+
+const byPriority = (a, b) => (PRIORITY_RANK[a.priority] ?? 9) - (PRIORITY_RANK[b.priority] ?? 9)
+  || String(a.id).localeCompare(String(b.id), undefined, { numeric: true });
+
+function renderBacklog(main) {
+  const all = items();
+  const uniq = (f) => [...new Set(all.map(f).filter(Boolean))].sort();
+  const priorities = uniq((i) => i.priority).sort((a, b) => (PRIORITY_RANK[a] ?? 9) - (PRIORITY_RANK[b] ?? 9));
+  const list = filteredItems();
+  // Pending, in progress and done are always columns; other statuses appear when they have items.
+  const present = new Set(list.map((i) => i.status));
+  const statuses = [...new Set([...STATUS_ORDER.filter((s) => ['pending', 'in_progress', 'done'].includes(s) || present.has(s)), ...present])];
+  const shown = list.filter((i) => ui.showDone || i.status !== 'done');
+  const open = all.filter((i) => i.status !== 'done').length;
+  const filtering = ui.q || ui.priority || ui.assignee || ui.kind;
+
+  main.innerHTML = `
+    <div class="page-head"><h2>Backlog</h2><p>${open} open, ${all.length - open} done</p></div>
+    ${renderBench()}
+    ${renderActiveLane()}
+    <div class="toolbar">
+      <input type="search" id="q" placeholder="Search titles, descriptions, labels" aria-label="Search backlog" value="${esc(ui.q)}">
+      <select id="f-priority" aria-label="Priority">${options(priorities, ui.priority, 'Any priority')}</select>
+      <select id="f-assignee" aria-label="Assignee">${options(uniq((i) => i.assigned_to), ui.assignee, 'Any assignee')}</select>
+      <select id="f-kind" aria-label="Type">${options(uniq((i) => kindOf(i.id)), ui.kind, 'Any type')}</select>
+      <label class="check"><input type="checkbox" id="f-done" ${ui.showDone ? 'checked' : ''}> Show done</label>
+      ${filtering ? '<button class="btn secondary" id="clear" type="button">Clear filters</button>' : ''}
+      <span class="summary">${filtering ? `Showing ${shown.length} of ${all.length}` : ''}</span>
+    </div>
+    <div class="board">
+      ${statuses.map((s) => {
+        const col = list.filter((i) => i.status === s).sort(byPriority);
+        let body;
+        if (s === 'done' && !ui.showDone && col.length) body = `<button class="card more" id="show-done" type="button">Show ${plural(col.length, 'done item')}</button>`;
+        else if (col.length) body = col.map(itemCard).join('');
+        else body = `<div class="empty">${filtering ? 'No items match these filters.' : s === 'pending' ? 'Nothing waiting. New bugs and ideas land here when the lead logs them.' : s === 'in_progress' ? 'Nothing in progress. Drag a pending item onto an agent to start one.' : 'Nothing here yet.'}</div>`;
+        return `<section class="column" aria-label="${esc(cap(s))}">
+          <h3><span>${esc(cap(s))}</span><span>${col.length}</span></h3>
+          <div class="cards">${body}</div>
+        </section>`;
+      }).join('')}
+    </div>`;
+
+  const bind = (id, key, ev = 'change', prop = 'value') => document.getElementById(id).addEventListener(ev, (e) => {
+    ui[key] = e.target[prop];
+    render();
+    if (id === 'q') refocus('q');
+  });
+  bind('q', 'q', 'input');
+  bind('f-priority', 'priority');
+  bind('f-assignee', 'assignee');
+  bind('f-kind', 'kind');
+  bind('f-done', 'showDone', 'change', 'checked');
+  document.getElementById('show-done')?.addEventListener('click', () => { ui.showDone = true; render(); });
+  document.getElementById('clear')?.addEventListener('click', () => { Object.assign(ui, { q: '', priority: '', assignee: '', kind: '' }); render(); });
+}
+
+function refocus(id) {
+  const el = document.getElementById(id);
+  if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
+}
+
+function itemCard(i) {
+  // Done items have nothing left to hand off, so they don't drag.
+  const drag = i.status !== 'done' && Object.keys(agents()).length ? `draggable="true" data-drag-kind="item" data-drag-id="${esc(i.id)}"` : '';
+  return `<div class="card" role="button" tabindex="0" data-open-item="${esc(i.id)}" ${drag}>
+    <div class="top"><span class="id mono">${esc(i.id)}</span>${prioBadge(i.priority)}</div>
+    <div class="title">${esc(i.title)}</div>
+    <div class="foot">
+      ${i.assigned_to ? `<span>${esc(cap(i.assigned_to))}</span>` : ''}
+      ${i.resolved_in_project ? `<span>Resolved in ${esc(i.resolved_in_project)}</span>` : ''}
+      ${(i.labels ?? []).slice(0, 3).map((l) => `<span class="tag">#${esc(l)}</span>`).join('')}
+    </div>
+  </div>`;
+}
+
+// ---------- agent bench + launching ----------
+function renderBench() {
+  const roles = benchRoles();
+  if (!roles.length) {
+    return `<h3 class="rule">Hand off to an agent</h3>
+      <div class="empty">No agent commands found in this workspace's .claude/commands folder.</div>`;
+  }
+  return `<h3 class="rule">Hand off to an agent <small class="bench-hint">Drag a card onto an agent, or open the card and use its buttons</small></h3>
+    <p class="touch-note">Open a card and use its Send to buttons to start an agent.</p>
+    <div class="bench" aria-label="Agents">${roles.map((r) => `<div class="zone" data-drop-agent="${esc(r)}">
+      <div class="zname">${esc(roleName(r))}</div>
+      <div class="zcmd mono">${esc(agents()[r])}</div>
+      <div class="zhint">${ROLES[r]?.hint ?? 'Its tasks in the active project'}</div>
+      ${(state.reminders?.[r] ?? []).length ? `<div class="zpins">Reminds ${esc(state.reminders[r].join(', '))}</div>` : ''}
+    </div>`).join('')}</div>`;
+}
+
+function activeProject() {
+  const id = state?.orchestrator?.active_project;
+  return id ? (state.projects ?? []).find((p) => p.id === id) : null;
+}
+
+function renderActiveLane() {
+  const p = activeProject();
+  if (!p) return '';
+  const open = p.tasks.filter((t) => t.status !== 'done');
+  return `<section class="lane" aria-label="Active project tasks">
+    <h3 class="rule">Active project: ${esc(p.id)} <small>${plural(open.length, 'open task')}</small></h3>
+    <div class="cards">${open.map((t) => `<div class="card" role="button" tabindex="0" data-open-project="${esc(p.id)}"
+        draggable="true" data-drag-kind="task" data-drag-id="${esc(t.task_id)}" data-drag-project="${esc(p.id)}" data-drag-agent="${esc(t.assigned_to)}">
+      <div class="top"><span class="id mono">${esc(t.task_id)}</span>${statusBadge(t.status)}</div>
+      <div class="title">${esc(t.title)}</div>
+      <div class="foot"><span>${esc(cap(t.assigned_to))}</span></div>
+    </div>`).join('') || '<div class="empty">Every task in this project is done. The lead closes it after review.</div>'}</div>
+  </section>`;
+}
+
+const validAgents = (kind, assigned) => kind === 'item' ? ['lead_agent', 'feature_strategist'] : [assigned];
+
+// Button version of drag and drop, for keyboard and touch.
+function launchButtons(roles, { kind, id, project = '' }) {
+  const available = roles.filter((r) => agents()[r]);
+  if (!available.length) return '';
+  return `<div class="actions">${available.map((r, n) => `<button type="button" class="btn ${n ? 'secondary' : ''}"
+    data-launch-agent="${esc(r)}" data-launch-kind="${esc(kind)}" data-launch-id="${esc(id)}" data-launch-project="${esc(project)}">
+    Send to ${esc(ROLES[r]?.name ?? cap(r))}</button>`).join('')}</div>`;
+}
+
+let toastTimer;
+function toast(html, { error = false, sticky = false } = {}) {
+  clearTimeout(toastTimer);
+  const root = document.getElementById('toast-root');
+  root.innerHTML = `<div class="toast ${error ? 'error' : ''}" role="status"><div class="row"><div>${html}</div>
+    <button class="theme-btn" data-toast-close type="button" aria-label="Dismiss message">Dismiss</button></div></div>`;
+  if (!sticky) toastTimer = setTimeout(() => { root.innerHTML = ''; }, 6000);
+}
+
+async function launchAgent({ agent, kind, id, project, action, from }) {
+  const who = agents()[agent] ?? agent;
+  const what = id ? ` for <code>${esc(id)}</code>` : from ? ` with ${esc(roleName(from))}'s report` : '';
+  toast(`Opening <code>${esc(who)}</code>${what}…`, { sticky: true });
+  try {
+    const res = await fetch('/api/launch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Board-Token': TOKEN },
+      body: JSON.stringify({ agent, kind, id, project, action, from }),
+    });
+    const out = await res.json();
+    if (!res.ok) return toast(`Couldn't start the agent: ${esc(out.error)}`, { error: true, sticky: true });
+    if (out.launched) return toast(`Opened <code>${esc(who)}</code>${what} in a new Terminal window.`);
+    toast(`Couldn't open a terminal${out.error ? ` (${esc(out.error)})` : ''}. Run this command yourself:
+      <pre>${esc(out.command)}</pre>
+      <div class="actions"><button class="btn" type="button" data-copy="${esc(out.command)}">Copy command</button></div>`, { error: !!out.error, sticky: true });
+  } catch (err) {
+    toast(`Couldn't reach the board server: ${esc(err.message)}. Is it still running?`, { error: true, sticky: true });
+  }
+}
+
+// Native drag and drop. Live refreshes wait until the drag ends,
+// because re-rendering would destroy the card being dragged.
+let drag = null;
+let pendingReload = false;
+
+document.addEventListener('dragstart', (e) => {
+  const card = e.target.closest?.('[data-drag-kind]');
+  if (!card) return;
+  drag = { kind: card.dataset.dragKind, id: card.dataset.dragId, project: card.dataset.dragProject, assigned: card.dataset.dragAgent };
+  e.dataTransfer.effectAllowed = 'copy';
+  e.dataTransfer.setData('text/plain', drag.id);
+  card.classList.add('drag-source');
+  const valid = validAgents(drag.kind, drag.assigned);
+  document.querySelectorAll('[data-drop-agent]').forEach((z) => z.classList.toggle('valid', valid.includes(z.dataset.dropAgent)));
+  document.body.classList.add('dragging');
+});
+document.addEventListener('dragend', (e) => {
+  e.target.closest?.('[data-drag-kind]')?.classList.remove('drag-source');
+  document.body.classList.remove('dragging');
+  document.querySelectorAll('.zone.over').forEach((z) => z.classList.remove('over'));
+  drag = null;
+  if (pendingReload) { pendingReload = false; load(); }
+});
+document.addEventListener('dragover', (e) => {
+  const zone = e.target.closest?.('.zone.valid');
+  if (!drag || !zone) return;
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'copy';
+  zone.classList.add('over');
+});
+document.addEventListener('dragleave', (e) => {
+  const zone = e.target.closest?.('.zone');
+  if (zone && !zone.contains(e.relatedTarget)) zone.classList.remove('over');
+});
+document.addEventListener('drop', (e) => {
+  const zone = e.target.closest?.('.zone.valid');
+  if (!drag || !zone) return;
+  e.preventDefault();
+  launchAgent({ agent: zone.dataset.dropAgent, kind: drag.kind, id: drag.id, project: drag.project });
+});
+
+function itemDrawer(id) {
+  const i = items().find((x) => x.id === id);
+  if (!i) return null;
+  const known = new Set(['id', 'title', 'description', 'priority', 'status', 'assigned_to', 'labels', 'resolved_in_project', 'discovered_in']);
+  const extra = Object.entries(i).filter(([k]) => !known.has(k));
+  const linked = i.resolved_in_project && (state.projects ?? []).some((p) => p.id === i.resolved_in_project);
+  return {
+    eyebrow: `<span class="mono tag">${esc(i.id)}</span> ${prioBadge(i.priority)} ${statusBadge(i.status)}`,
+    title: esc(i.title),
+    body: `
+      ${i.status !== 'done' ? launchButtons(validAgents('item'), { kind: 'item', id: i.id }) : ''}
+      <h3 class="rule">Description</h3><div class="prose">${esc(i.description || 'No description.')}</div>
+      <h3 class="rule">Details</h3>
+      <dl class="kv">
+        <dt>Assigned to</dt><dd>${esc(cap(i.assigned_to) || 'Nobody')}</dd>
+        ${i.discovered_in ? `<dt>Found in</dt><dd>${esc(i.discovered_in)}</dd>` : ''}
+        ${i.resolved_in_project ? `<dt>Resolved in</dt><dd>${linked ? `<a href="#/projects" data-open-project="${esc(i.resolved_in_project)}">${esc(i.resolved_in_project)}</a>` : esc(i.resolved_in_project)}</dd>` : ''}
+        ${(i.labels ?? []).length ? `<dt>Labels</dt><dd>${i.labels.map((l) => `<span class="tag">#${esc(l)}</span>`).join(' ')}</dd>` : ''}
+        ${extra.map(([k, v]) => `<dt>${esc(cap(k))}</dt><dd>${renderValue(v)}</dd>`).join('')}
+      </dl>
+      ${relatedLessons(i)}`,
+  };
+}
+
+function relatedLessons(item) {
+  const ids = [...new Set(JSON.stringify(item).match(/\bL\d{2,4}\b/g) ?? [])];
+  const found = ids.map((id) => lessons().find((l) => l.id === id)).filter(Boolean);
+  if (!found.length) return '';
+  return `<h3 class="rule">Lessons it relates to</h3><div class="mini-list">${found.map((l) => `<button type="button" class="mini" data-open-lesson="${esc(l.id)}">
+    <span class="mono tag">${esc(l.id)}</span>${prioBadge(l.severity)}<span>${esc(l.title)}</span></button>`).join('')}</div>`;
+}
+
+// ---------- projects ----------
+function phaseBar(phase) {
+  const idx = PHASES.indexOf(phase);
+  return `<div class="phases" role="img" aria-label="Phase: ${esc(label(phase) || 'unknown')}">${PHASES.map((p, n) =>
+    `<span class="${idx === -1 ? '' : n < idx || phase === 'done' ? 'done' : n === idx ? 'current' : ''}" title="${esc(cap(p))}"></span>`).join('')}</div>
+    <div class="phase-label">${esc(cap(phase) || 'Unknown phase')}</div>`;
+}
+
+function projectCard(p, active) {
+  const done = p.tasks.filter((t) => t.status === 'done').length;
+  const verdict = verdictOf(p);
+  return `<div class="card project ${active ? 'active' : ''}" role="button" tabindex="0" data-open-project="${esc(p.id)}">
+    <div>
+      <div class="name">${esc(p.id)}</div>
+      <div class="sub">
+        ${p.meta.type ? `<span>${esc(p.meta.type)}</span>` : ''}
+        ${p.meta.created_at ? `<span>${fmtDay(p.meta.created_at)}</span>` : ''}
+        <span>${done} of ${plural(p.tasks.length, 'task')} done</span>
+      </div>
+    </div>
+    <div>${phaseBar(p.status?.phase)}</div>
+    <div class="right">
+      ${prioBadge(p.meta.priority)}
+      ${statusBadge(projectStatus(p))}
+      ${verdict ? `<span class="badge ${verdict === 'approved' ? 's-blue' : 's-red'}">${esc(verdict)}</span>` : ''}
+    </div>
+  </div>`;
+}
+
+function renderProjects(main) {
+  const active = state.orchestrator?.active_project;
+  const list = projectList();
+  const activeP = list.find((p) => p.id === active);
+  const open = list.filter((p) => p.id !== active && projectStatus(p) !== 'done');
+  const closed = list.filter((p) => p.id !== active && projectStatus(p) === 'done');
+  main.innerHTML = `
+    <div class="page-head"><h2>Projects</h2><p>${plural(list.length, 'project')}, ${closed.length} closed</p></div>
+    <h3 class="rule">Active</h3>
+    ${activeP ? projectCard(activeP, true) : '<div class="empty">No active project. The lead sets one when it creates a project from a handoff or a backlog item.</div>'}
+    ${open.length ? `<h3 class="rule">Open <small>${open.length}</small></h3><div class="projects">${open.map((p) => projectCard(p)).join('')}</div>` : ''}
+    <h3 class="rule">Closed <small>${closed.length}</small></h3>
+    <div class="projects">${closed.map((p) => projectCard(p)).join('') || '<div class="empty">No closed projects yet.</div>'}</div>`;
+}
+
+function messageEntry(m) {
+  const fields = ['files_touched', 'findings', 'surprises', 'assumptions', 'blockers'];
+  return `<details class="entry">
+    <summary>${statusBadge(m.status)} <span class="mono tag">${esc(m.agent_id ?? m.role ?? '')}</span> <span class="tag">${fmtDate(m.updated_at)}</span></summary>
+    <div class="prose">${esc(m.approach_summary)}</div>
+    ${fields.filter((f) => m[f] != null && !(Array.isArray(m[f]) && !m[f].length)).map((f) => `<h5>${esc(cap(f))}</h5>${renderValue(m[f])}`).join('')}
+    ${m.handoff_to ? `<h5>Handoff to</h5>${esc(cap(m.handoff_to))}` : ''}
+  </details>`;
+}
+
+function projectDrawer(id) {
+  const p = projectList().find((x) => x.id === id);
+  if (!p) return null;
+  const agentStates = p.status?.agents ?? {};
+  const events = Array.isArray(p.events) ? p.events : [];
+  const roles = Object.keys(p.messages ?? {});
+  const isActive = p.id === state.orchestrator?.active_project;
+  return {
+    eyebrow: `${prioBadge(p.meta.priority)} ${statusBadge(projectStatus(p))} ${p.meta.type ? `<span class="tag">${esc(p.meta.type)}</span>` : ''}`,
+    title: esc(p.id),
+    body: `
+      ${p.meta.note ? `<h3 class="rule">Note</h3><div class="prose">${esc(p.meta.note)}</div>` : ''}
+      <h3 class="rule">Phase</h3>${phaseBar(p.status?.phase)}
+      <h3 class="rule">Agents</h3>
+      <dl class="kv">${Object.entries(agentStates).map(([a, s]) => `<dt>${esc(cap(a))}</dt><dd>${statusBadge(s)}</dd>`).join('') || '<dd class="tag">No agent states recorded.</dd>'}</dl>
+      ${(p.status?.blocked_by ?? []).length ? `<h3 class="rule">Blocked by</h3>${renderValue(p.status.blocked_by)}` : ''}
+
+      <h3 class="rule">Tasks <small>${p.tasks.length}</small></h3>
+      ${p.tasks.map((t) => `<details class="entry">
+        <summary><span class="mono">${esc(t.task_id)}</span> ${statusBadge(t.status)} <span class="tag">${esc(cap(t.assigned_to))}</span>
+          <span style="flex-basis:100%">${esc(t.title)}</span></summary>
+        ${isActive && t.status !== 'done' ? launchButtons([t.assigned_to], { kind: 'task', id: t.task_id, project: p.id }) : ''}
+        ${t.goal ? `<div class="prose">${esc(t.goal)}</div>` : ''}
+        ${(t.acceptance_criteria ?? []).length ? `<h5>Acceptance criteria</h5>${renderValue(t.acceptance_criteria)}` : ''}
+        ${t.scope?.in?.length ? `<h5>In scope</h5>${renderValue(t.scope.in)}` : ''}
+        ${t.scope?.out?.length ? `<h5>Out of scope</h5>${renderValue(t.scope.out)}` : ''}
+        ${(t.dependencies ?? []).length ? `<h5>Depends on</h5>${renderValue(t.dependencies)}` : ''}
+      </details>`).join('') || '<div class="empty">No task files in this project.</div>'}
+
+      <h3 class="rule">Timeline</h3>
+      ${events.length ? `<div class="timeline">${events.map((e) => `<div class="ev">
+        <div class="when">${fmtDate(e.timestamp)}, ${esc(label(e.actor))}</div>
+        <div class="what">${esc(cap(e.event))}</div>
+        ${e.note ? `<div class="prose">${esc(e.note)}</div>` : ''}
+      </div>`).join('')}</div>` : '<div class="empty">The lead hasn\'t logged any events for this project.</div>'}
+
+      <h3 class="rule">Agent messages</h3>
+      ${roles.length ? roles.map((r) => {
+        const arr = Array.isArray(p.messages[r]) ? p.messages[r] : [p.messages[r]];
+        return `<div style="margin-bottom:14px"><div style="margin-bottom:6px"><strong>${esc(cap(r))}</strong> <span class="tag">${plural(arr.length, 'entry').replace('entrys', 'entries')}</span></div>
+          ${arr.map(messageEntry).join('')}</div>`;
+      }).join('') : '<div class="empty">No agent has written a message file yet.</div>'}
+
+      <h3 class="rule">Review report</h3>
+      ${p.hasReview ? `<div class="md" id="review" data-project="${esc(p.id)}"><p class="loading">Loading the report…</p></div>` : '<div class="empty">The reviewer hasn\'t written a report for this project.</div>'}
+    `,
+    after: () => loadReview(p.id),
+  };
+}
+
+async function loadReview(id) {
+  const el = document.getElementById('review');
+  if (!el || el.dataset.project !== id) return;
+  try {
+    if (!reviewCache.has(id)) {
+      const res = await fetch(`/api/review/${encodeURIComponent(id)}`);
+      if (!res.ok) throw new Error(res.statusText);
+      reviewCache.set(id, await res.text());
+    }
+    if (el.isConnected) el.innerHTML = renderMarkdown(reviewCache.get(id));
+  } catch (err) {
+    if (el.isConnected) el.innerHTML = `<div class="empty">Couldn't load the report (${esc(err.message)}). It's in orchestrator/research/review-${esc(id)}.md.</div>`;
+  }
+}
+
+// ---------- lessons ----------
+// Topic comes from a lesson's own "topic" field when the lead sets one; otherwise it is
+// guessed from keywords. Title words count double because titles name the subject.
+const TOPICS = [
+  ['Auth and tokens', /\b(jwt\w*|tokens?|auth\w*|blacklist|secret|passwords?|bcrypt|login|requireauth)\b/gi],
+  ['Permissions and tenancy', /\b(permissions?|role|weight|companyid|tenants?|rbac|mass-assignment|reparent\w*|hierarch\w*|subordinate\w*)\b/gi],
+  ['Database and Sequelize', /\b(sequelize|findbypk|migrations?|composite|bulkdelete|noprimarykey|seeders?|postgres\w*|uuid|fk)\b/gi],
+  ['Express and errors', /\b(asynchandler|middleware|express|err\.status|500|try\/catch|always-200|error handler)\b/gi],
+  ['Modules and imports', /(\.mjs\b|\besm\b|\bes modules\b|require\(\)|\bimports?\b)/gi],
+  ['Frontend', /\b(next\.js|react|hooks?|components?|use client|frontend|forms?|interceptor|redirects?|app router)\b/gi],
+  ['Tests', /\b(tests?|fixtures?)\b/gi],
+  ['Process and specs', /\b(specs?|handoff|reviewer|pivot\w*|supersede\w*)\b/gi],
+];
+
+function topicOf(l) {
+  if (l.topic) return String(l.topic);
+  let best = 'Other', score = 0;
+  for (const [name, re] of TOPICS) {
+    const s = (String(l.title).match(re) ?? []).length * 2 + (`${l.description ?? ''} ${l.fix ?? ''}`.match(re) ?? []).length;
+    if (s > score) { best = name; score = s; }
+  }
+  return best;
+}
+
+// Cross-references built from what the files already say: the lead's event notes
+// ("Lesson L010 promoted"), agent message files, and backlog items that cite a lesson id.
+let lessonIndexCache = null;
+function lessonIndex() {
+  if (lessonIndexCache?.state === state) return lessonIndexCache.map;
+  const map = new Map();
+  for (const l of lessons()) {
+    map.set(l.id, { topic: topicOf(l), origins: [], cited: new Set(), openItems: [], closedItems: [], reminds: [] });
+  }
+  const idsIn = (text) => [...new Set(String(text).match(/\bL\d{2,4}\b/g) ?? [])].filter((id) => map.has(id));
+  for (const p of state.projects ?? []) {
+    for (const e of Array.isArray(p.events) ? p.events : []) {
+      for (const sentence of String(e.note ?? '').split(/(?<=\.)\s+/)) {
+        const ids = idsIn(sentence);
+        if (!ids.length) continue;
+        const promoted = /promot/i.test(sentence);
+        for (const id of ids) {
+          if (promoted) map.get(id).origins.push({ project: p.id, when: e.timestamp, note: sentence });
+          else map.get(id).cited.add(p.id);
+        }
+      }
+    }
+    for (const arr of Object.values(p.messages ?? {})) {
+      for (const id of idsIn(JSON.stringify(arr))) map.get(id).cited.add(p.id);
+    }
+  }
+  for (const item of items()) {
+    for (const id of idsIn(JSON.stringify(item))) map.get(id)[item.status === 'done' ? 'closedItems' : 'openItems'].push(item);
+  }
+  for (const [role, ids] of Object.entries(state.reminders ?? {})) {
+    for (const id of Array.isArray(ids) ? ids : []) map.get(id)?.reminds.push(role);
+  }
+  for (const info of map.values()) {
+    for (const o of info.origins) info.cited.delete(o.project);
+  }
+  lessonIndexCache = { state, map };
+  return map;
+}
+
+const roleName = (r) => ROLES[r]?.name ?? cap(r);
+const bySeverity = (a, b) => (PRIORITY_RANK[a.severity] ?? 9) - (PRIORITY_RANK[b.severity] ?? 9)
+  || String(a.id).localeCompare(String(b.id), undefined, { numeric: true });
+
+function lessonRow(l) {
+  const info = lessonIndex().get(l.id);
+  const retired = l.status === 'retired';
+  return `<div class="card lesson-row ${retired ? 'retired' : ''}" role="button" tabindex="0" data-open-lesson="${esc(l.id)}">
+    <div class="lr-id"><span class="mono tag">${esc(l.id)}</span>${prioBadge(l.severity)}${retired ? '<span class="badge s-muted">retired</span>' : ''}</div>
+    <div>
+      <div class="lr-title">${esc(l.title)}</div>
+      ${l.description ? `<div class="lr-desc">${esc(l.description)}</div>` : ''}
+    </div>
+    <div class="lr-meta">
+      ${info.openItems.map((i) => `<span class="badge s-red">Open: ${esc(i.id)}</span>`).join('')}
+      ${info.origins[0] ? `<span>From ${esc(info.origins[0].project)}</span>` : ''}
+      ${info.reminds.length ? `<span class="pin">Reminds ${esc(info.reminds.map(roleName).join(', '))}</span>` : ''}
+    </div>
+  </div>`;
+}
+
+function renderLessons(main) {
+  const all = lessons();
+  const index = lessonIndex();
+  const q = ui.lessonQ.trim().toLowerCase();
+  const severities = [...new Set(all.map((l) => l.severity).filter(Boolean))].sort((a, b) => (PRIORITY_RANK[a] ?? 9) - (PRIORITY_RANK[b] ?? 9));
+  const retiredCount = all.filter((l) => l.status === 'retired').length;
+  const liveCount = all.filter((l) => l.status !== 'retired' && index.get(l.id).openItems.length).length;
+  const list = all.filter((l) => {
+    if (l.status === 'retired' && !ui.showRetired) return false;
+    if (ui.severity && l.severity !== ui.severity) return false;
+    if (ui.lessonOpenOnly && !index.get(l.id).openItems.length) return false;
+    return !q || [l.id, l.title, l.description, l.fix, index.get(l.id).topic].join(' ').toLowerCase().includes(q);
+  });
+  const filtering = q || ui.severity || ui.lessonOpenOnly;
+  const groups = new Map();
+  for (const l of list) {
+    const t = index.get(l.id).topic;
+    if (!groups.has(t)) groups.set(t, []);
+    groups.get(t).push(l);
+  }
+  const ordered = [...groups.entries()].sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0]));
+
+  main.innerHTML = `
+    <div class="page-head"><h2>Lessons</h2>
+      <p>${plural(all.length - retiredCount, 'lesson')}${liveCount ? `, ${liveCount} still broken by an open backlog item` : ''}${retiredCount ? `, ${retiredCount} retired` : ''}</p></div>
+    <div class="toolbar">
+      <input type="search" id="lq" placeholder="Search lessons and topics" aria-label="Search lessons" value="${esc(ui.lessonQ)}">
+      <select id="f-sev" aria-label="Severity">${options(severities, ui.severity, 'Any severity')}</select>
+      <label class="check"><input type="checkbox" id="f-open" ${ui.lessonOpenOnly ? 'checked' : ''}> Still open in backlog</label>
+      ${retiredCount ? `<label class="check"><input type="checkbox" id="f-retired" ${ui.showRetired ? 'checked' : ''}> Show retired</label>` : ''}
+      ${filtering ? '<button class="btn secondary" id="lclear" type="button">Clear filters</button>' : ''}
+      <span class="summary">${filtering ? `Showing ${list.length} of ${all.length}` : ''}</span>
+    </div>
+    ${ordered.map(([topic, ls]) => `<h3 class="rule">${esc(topic)} <small>${ls.length}</small></h3>
+      <div class="lesson-list">${ls.sort(bySeverity).map(lessonRow).join('')}</div>`).join('')
+      || `<div class="empty">${all.length ? 'No lessons match these filters.' : 'No lessons yet. The lead adds them when an agent reports a mistake worth remembering.'}</div>`}`;
+
+  document.getElementById('lq').addEventListener('input', (e) => { ui.lessonQ = e.target.value; render(); refocus('lq'); });
+  document.getElementById('f-sev').addEventListener('change', (e) => { ui.severity = e.target.value; render(); });
+  document.getElementById('f-open').addEventListener('change', (e) => { ui.lessonOpenOnly = e.target.checked; render(); });
+  document.getElementById('f-retired')?.addEventListener('change', (e) => { ui.showRetired = e.target.checked; render(); });
+  document.getElementById('lclear')?.addEventListener('click', () => { Object.assign(ui, { lessonQ: '', severity: '', lessonOpenOnly: false }); render(); });
+}
+
+function lessonDrawer(id) {
+  const l = lessons().find((x) => x.id === id);
+  if (!l) return null;
+  const info = lessonIndex().get(id);
+  const retired = l.status === 'retired';
+  const roles = Object.keys(agents());
+  const lead = agents().lead_agent;
+  const itemMini = (i) => `<button type="button" class="mini" data-open-item="${esc(i.id)}">
+    <span class="mono tag">${esc(i.id)}</span>${prioBadge(i.priority)}<span>${esc(i.title)}</span></button>`;
+  const projectLink = (p) => `<a href="#/projects" data-open-project="${esc(p)}">${esc(p)}</a>`;
+  return {
+    eyebrow: `<span class="mono tag">${esc(l.id)}</span> ${prioBadge(l.severity)} <span class="tag">${esc(info.topic)}</span> ${retired ? '<span class="badge s-muted">retired</span>' : ''}`,
+    title: esc(l.title),
+    body: `
+      ${lead && !retired ? `<div class="actions">
+        <button type="button" class="btn" data-launch-agent="lead_agent" data-launch-kind="lesson" data-launch-id="${esc(l.id)}" data-launch-action="enforce">Enforce with Lead</button>
+        <button type="button" class="btn secondary" data-launch-agent="lead_agent" data-launch-kind="lesson" data-launch-id="${esc(l.id)}" data-launch-action="retire">Retire with Lead</button>
+      </div>
+      <p class="tag">Enforce: the lead searches the code for this mistake and turns hits into fix tasks. Retire: the lead checks it can no longer happen, then marks it retired in lessons.json.</p>` : ''}
+      <h3 class="rule">What went wrong</h3><div class="prose">${esc(l.description || 'Not recorded.')}</div>
+      <h3 class="rule">Fix</h3><div class="prose">${esc(l.fix || 'Not recorded.')}</div>
+      ${retired ? `<h3 class="rule">Retired</h3><div class="prose">${esc(l.retired_reason || 'No reason recorded.')}${l.retired_at ? ` <span class="tag">(${fmtDay(l.retired_at)})</span>` : ''}</div>` : ''}
+
+      <h3 class="rule">Still open in the backlog <small>${info.openItems.length}</small></h3>
+      ${info.openItems.length ? `<div class="mini-list">${info.openItems.map(itemMini).join('')}</div>`
+        : `<div class="empty">No open backlog item mentions ${esc(l.id)}.</div>`}
+      ${info.closedItems.length ? `<p class="tag">Also cited by closed items: ${info.closedItems.map((i) => `<a href="#/backlog" data-open-item="${esc(i.id)}">${esc(i.id)}</a>`).join(', ')}</p>` : ''}
+
+      <h3 class="rule">Where it came from</h3>
+      ${info.origins.length ? info.origins.map((o) => `<div style="margin-bottom:10px">Promoted by the lead in ${projectLink(o.project)}${o.when ? `, ${fmtDay(o.when)}` : ''}
+        <p class="quote">${esc(o.note)}</p></div>`).join('')
+        : '<div class="empty">The lead\'s event log doesn\'t say which project this lesson came from.</div>'}
+
+      <h3 class="rule">Cited in other projects <small>${info.cited.size}</small></h3>
+      ${info.cited.size ? `<p>${[...info.cited].map(projectLink).join(', ')}</p>` : '<div class="empty">No other project\'s events or agent messages mention it.</div>'}
+
+      <h3 class="rule">Remind agents</h3>
+      <p class="tag">When you start a checked agent from Seahorse, its prompt asks it to re-read this lesson first. Saved in .seahorse/reminders.json in the workspace.</p>
+      ${retired ? '<div class="empty">Retired lessons are left out of reminders.</div>' : roles.map((r) => `<label class="check-row">
+        <input type="checkbox" data-remind-agent="${esc(r)}" data-remind-lesson="${esc(l.id)}" ${info.reminds.includes(r) ? 'checked' : ''}>
+        <span>${esc(roleName(r))}</span><span class="mono">${esc(agents()[r])}</span></label>`).join('')}
+    `,
+  };
+}
+
+async function setReminder(lesson, agent, on, input) {
+  input.disabled = true;
+  try {
+    const res = await fetch('/api/reminders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Board-Token': TOKEN },
+      body: JSON.stringify({ lesson, agent, on }),
+    });
+    const out = await res.json();
+    if (!res.ok) throw new Error(out.error);
+    state = { ...state, reminders: out.reminders };
+    render();
+    renderDrawer();
+    toast(on ? `${roleName(agent)} will be reminded of ${esc(lesson)} next time you start it from Seahorse.` : `${roleName(agent)} won't be reminded of ${esc(lesson)} any more.`);
+  } catch (err) {
+    input.checked = !on;
+    input.disabled = false;
+    toast(`Couldn't save the reminder: ${esc(err.message)}`, { error: true, sticky: true });
+  }
+}
+
+document.addEventListener('change', (e) => {
+  const box = e.target.closest?.('[data-remind-agent]');
+  if (box) setReminder(box.dataset.remindLesson, box.dataset.remindAgent, box.checked, box);
+  const skill = e.target.closest?.('[data-skill-agent]');
+  if (skill) setSkill(skill.dataset.skillPlugin, skill.dataset.skillAgent, skill.checked, skill);
+});
+
+async function post(url, body) {
+  const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Board-Token': TOKEN }, body: JSON.stringify(body) });
+  const out = await res.json().catch(() => ({ error: `server answered ${res.status}` }));
+  if (!res.ok) throw new Error(out.error ?? `server answered ${res.status}`);
+  return out;
+}
+
+// ---------- workflow ----------
+// The orchestrator lifecycle as stages. Phases from status.json map onto them.
+const STAGES = [
+  { key: 'scope', name: 'Scope', roles: ['feature_strategist'], phases: ['task_defined', 'research'] },
+  { key: 'plan', name: 'Plan', roles: ['lead_agent'], phases: ['spec_ready'] },
+  { key: 'build', name: 'Build', roles: ['backend_agent', 'frontend_agent'], phases: ['implementation'] },
+  { key: 'review', name: 'Review', roles: ['reviewer_agent'], phases: ['review'] },
+  { key: 'close', name: 'Close', roles: ['lead_agent'], phases: ['done'] },
+];
+
+const latestEntry = (arr) => (Array.isArray(arr) ? arr : []).reduce((best, m) => (!best || String(m.updated_at ?? '') >= String(best.updated_at ?? '') ? m : best), null);
+
+// What the user should do next for a project, from what its files say.
+function nextStep(p) {
+  const activeId = state.orchestrator?.active_project;
+  if (!p || p.id !== activeId) {
+    const top = items().filter((i) => i.status !== 'done').sort(byPriority)[0];
+    if (activeId) {
+      return {
+        title: `Viewing ${p?.id ?? 'another project'}`,
+        text: `The active project is ${activeId}. Switch to it to see what to start next.`,
+        buttons: '<div class="actions"><button type="button" class="btn" data-wf-switch>Show the active project</button></div>',
+      };
+    }
+    if (p && projectStatus(p) === 'done' && !top) {
+      return { title: 'This project is closed', text: `The lead closed ${p.id}, and the backlog has no open items.`, buttons: '' };
+    }
+    if (!top) return { title: 'Nothing to do', text: 'No project is running and the backlog has no open items.', buttons: '' };
+    return {
+      title: 'No project is running',
+      text: `Start one from the backlog. The highest-priority open item is ${top.id}: ${top.title}`,
+      buttons: launchButtons(['lead_agent', 'feature_strategist'], { kind: 'item', id: top.id }),
+    };
+  }
+  const statusAt = String(p.status?.updated_at ?? '');
+  // 1. A worker reported done after the lead last updated status.json: relay it to the lead.
+  const reports = Object.entries(p.messages ?? {})
+    .filter(([role]) => role !== 'lead_agent')
+    .map(([role, arr]) => ({ role, m: latestEntry(arr) }))
+    .filter(({ m }) => m && m.status === 'done' && String(m.updated_at ?? '') > statusAt)
+    .sort((a, b) => String(b.m.updated_at).localeCompare(String(a.m.updated_at)));
+  if (reports.length && agents().lead_agent) {
+    const r = reports[0];
+    return {
+      title: `${roleName(r.role)} finished. Tell the Lead.`,
+      text: r.m.approach_summary ?? '',
+      buttons: `<div class="actions"><button type="button" class="btn" data-launch-agent="lead_agent" data-launch-kind="handoff" data-launch-from="${esc(r.role)}" data-launch-project="${esc(p.id)}">Send ${esc(roleName(r.role))}'s report to Lead</button></div>`,
+    };
+  }
+  // 2. Blockers recorded by the lead.
+  if ((p.status?.blocked_by ?? []).length) {
+    return {
+      title: 'The project is blocked',
+      text: [].concat(p.status.blocked_by).map((b) => (typeof b === 'string' ? b : JSON.stringify(b))).join('; '),
+      buttons: launchButtonsAgent('lead_agent', 'Ask the Lead about the blockers'),
+    };
+  }
+  // 3. Pending tasks whose dependencies are all done.
+  const doneIds = new Set(p.tasks.filter((t) => t.status === 'done').map((t) => t.task_id));
+  const ready = p.tasks.filter((t) => t.status === 'pending' && (t.dependencies ?? []).every((d) => doneIds.has(d)));
+  if (ready.length) {
+    return {
+      title: `${plural(ready.length, 'task')} ready to start`,
+      text: ready.map((t) => `${t.task_id} (${roleName(t.assigned_to)}): ${t.title}`).join(' · '),
+      buttons: `<div class="actions">${ready.map((t, n) => agents()[t.assigned_to] ? `<button type="button" class="btn ${n ? 'secondary' : ''}" data-launch-agent="${esc(t.assigned_to)}" data-launch-kind="task" data-launch-id="${esc(t.task_id)}" data-launch-project="${esc(p.id)}">Start ${esc(roleName(t.assigned_to))} on ${esc(t.task_id)}</button>` : '').join('')}</div>`,
+    };
+  }
+  const working = p.tasks.filter((t) => t.status === 'in_progress');
+  if (working.length) {
+    return { title: 'Agents are working', text: working.map((t) => `${roleName(t.assigned_to)} on ${t.task_id}`).join(', ') + '. Seahorse will show the next step when one reports back.', buttons: '' };
+  }
+  return { title: 'Waiting on the Lead', text: 'No task is ready and nothing new was reported. The lead decides what happens next.', buttons: launchButtonsAgent('lead_agent', 'Start the Lead') };
+}
+
+function launchButtonsAgent(role, labelText) {
+  return agents()[role] ? `<div class="actions"><button type="button" class="btn" data-launch-agent="${esc(role)}" data-launch-kind="agent">${esc(labelText)}</button></div>` : '';
+}
+
+function renderWorkflow(main) {
+  const list = projectList();
+  const activeId = state.orchestrator?.active_project;
+  // Follow the active project when it changes; otherwise keep whatever the user picked.
+  if (activeId !== ui.workflowActiveSeen) { ui.workflowActiveSeen = activeId; if (activeId) ui.workflowProject = activeId; }
+  if (!ui.workflowProject || !list.some((p) => p.id === ui.workflowProject)) ui.workflowProject = activeId ?? list[0]?.id ?? '';
+  const p = list.find((x) => x.id === ui.workflowProject);
+  const step = nextStep(p);
+  const phase = p?.status?.phase;
+  const agentState = p?.status?.agents ?? {};
+
+  const stages = STAGES.map((s) => {
+    const roles = s.key === 'build'
+      ? [...new Set([...workerRoles(), ...(p?.tasks ?? []).map((t) => t.assigned_to).filter((r) => r && !CORE_ROLES.includes(r))])]
+      : s.roles;
+    const current = phase && s.phases.includes(phase) && projectStatus(p) !== 'done';
+    return `<div class="stage ${current ? 'current' : ''}">
+      <div class="stage-head">${esc(s.name)}${current ? ' <small>now</small>' : ''}</div>
+      ${roles.map((r) => {
+        const m = latestEntry(p?.messages?.[r]);
+        const tasks = (p?.tasks ?? []).filter((t) => t.assigned_to === r);
+        const st = s.key === 'close' ? (projectStatus(p) === 'done' ? 'done' : 'pending') : agentState[r];
+        return `<div class="node">
+          <div class="nname"><a href="#/agents" data-open-agent="${esc(r)}">${esc(roleName(r))}</a>${statusBadge(st)}</div>
+          ${tasks.length && s.key !== 'close' ? `<div class="label-sm">${tasks.filter((t) => t.status === 'done').length} of ${plural(tasks.length, 'task')} done</div>` : ''}
+          ${m && s.key !== 'close' ? `<div class="nlast">${esc(m.approach_summary)}</div>` : ''}
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join('');
+
+  // Handoff log: agent message entries and lead events, newest first.
+  const log = p ? [
+    ...Object.entries(p.messages ?? {}).flatMap(([role, arr]) => (Array.isArray(arr) ? arr : []).map((m) => ({
+      when: m.updated_at, role, who: roleName(role), what: `${m.status ?? ''}${m.handoff_to ? ` → ${roleName(m.handoff_to)}` : ''}`, note: m.approach_summary,
+    }))),
+    ...(Array.isArray(p.events) ? p.events : []).map((e) => ({ when: e.timestamp, role: e.actor, who: roleName(e.actor), what: label(e.event), note: e.note })),
+  ].sort((a, b) => String(b.when ?? '').localeCompare(String(a.when ?? ''))) : [];
+
+  main.innerHTML = `
+    <div class="page-head"><h2>Workflow</h2><p>How work moves between agents, and what to start next</p></div>
+    <div class="next">
+      <h3>${esc(step.title)}</h3>
+      ${step.text ? `<p>${esc(step.text)}</p>` : ''}
+      ${step.buttons}
+    </div>
+    <div class="toolbar">
+      <label class="label-sm" for="wf-project">Project</label>
+      <select id="wf-project" class="select-inline">${list.map((x) => `<option value="${esc(x.id)}" ${x.id === ui.workflowProject ? 'selected' : ''}>${esc(x.id)}${x.id === activeId ? ' (active)' : ''}</option>`).join('')}</select>
+      ${p ? `<button type="button" class="btn secondary" data-open-project="${esc(p.id)}">Open project details</button>` : ''}
+    </div>
+    ${p ? `<div class="flow" aria-label="Stages">${stages}</div>` : '<div class="empty">No projects yet. The lead creates one from a handoff or a backlog item.</div>'}
+    ${p ? `<h3 class="rule">Handoff log <small>${plural(log.length, 'entry').replace('entrys', 'entries')}</small></h3>
+      <div class="log">${log.slice(0, ui.logLimit).map((x) => `<div class="entry-line">
+        <span class="tag">${fmtDate(x.when)}</span>
+        <span><span class="who">${esc(x.who)}</span> <span class="tag">${esc(x.what)}</span></span>
+        <span class="what">${esc(x.note ?? '')}${agents()[x.role] ? ` <button type="button" class="link-btn" data-dislike-agent="${esc(x.role)}" data-dislike-project="${esc(p.id)}">Didn't like this</button>` : ''}</span>
+      </div>`).join('') || '<div class="empty">Nothing logged for this project yet.</div>'}</div>
+      ${log.length > ui.logLimit ? '<div class="actions"><button type="button" class="btn secondary" id="log-more">Show older entries</button></div>' : ''}` : ''}`;
+
+  document.getElementById('wf-project')?.addEventListener('change', (e) => { ui.workflowProject = e.target.value; ui.logLimit = 12; render(); });
+  document.getElementById('log-more')?.addEventListener('click', () => { ui.logLimit += 20; render(); });
+}
+
+// ---------- agents ----------
+function agentActivity(role) {
+  const entries = [];
+  for (const p of state.projects ?? []) {
+    for (const m of Array.isArray(p.messages?.[role]) ? p.messages[role] : []) entries.push({ ...m, project: p.id });
+  }
+  return entries.sort((a, b) => String(b.updated_at ?? '').localeCompare(String(a.updated_at ?? '')));
+}
+
+function writesOf(role) {
+  return state.permissions?.matrix?.[role]?.write ?? null;
+}
+
+function renderAgents(main) {
+  const info = state.agentInfo ?? {};
+  const order = [...benchRoles(), 'codebase_archaeologist'];
+  const roles = Object.keys(info).sort((a, b) => (order.indexOf(a) + 1 || 99) - (order.indexOf(b) + 1 || 99));
+  main.innerHTML = `
+    <div class="page-head"><h2>Agents</h2><p>${plural(roles.length, 'agent')} in .claude/commands</p></div>
+    <div class="toolbar"><button type="button" class="btn" data-new-agent>New agent</button>
+      <span class="label-sm">Creates a command file from a template. You then add it to the permission matrix in core.md.</span></div>
+    ${state.permissions?.unmapped?.length ? `<div class="notice">The permission matrix in core.md has columns Seahorse couldn't match to an agent: ${state.permissions.unmapped.map(esc).join(', ')}.</div>` : ''}
+    <div class="agent-grid">${roles.map((r) => {
+      const a = info[r];
+      const writes = writesOf(r);
+      const acts = agentActivity(r);
+      const projects = new Set(acts.map((m) => m.project));
+      const skills = state.skills?.[r] ?? [];
+      const pins = state.reminders?.[r] ?? [];
+      return `<article class="agent-card">
+        <div><h4>${esc(roleName(r))}</h4><span class="mono tag">${esc(a.command)}</span></div>
+        <div class="desc">${esc(a.description || 'No description in the command file.')}</div>
+        <div><div class="label-sm">May write</div>
+          ${writes === null ? '<span class="tag">Not in the permission matrix</span>' : writes.length ? `<div class="chips">${writes.slice(0, 4).map((w) => `<span class="chip">${esc(w)}</span>`).join('')}${writes.length > 4 ? `<span class="tag">+${writes.length - 4} more</span>` : ''}</div>` : '<span class="tag">Writes nothing</span>'}
+        </div>
+        ${skills.length || pins.length ? `<div class="chips">${skills.map((s) => `<span class="chip blue">${esc(s.split('@')[0])}</span>`).join('')}${pins.map((l) => `<span class="chip">${esc(l)}</span>`).join('')}</div>` : ''}
+        <div class="label-sm">${acts.length ? `${plural(acts.length, 'message')} in ${plural(projects.size, 'project')}, last ${fmtDay(acts[0].updated_at)} in ${esc(acts[0].project)}` : 'No messages in any project yet'}</div>
+        <div class="actions">
+          <button type="button" class="btn" data-launch-agent="${esc(r)}" data-launch-kind="agent">Start ${esc(roleName(r))}</button>
+          <button type="button" class="btn secondary" data-open-agent="${esc(r)}">Details</button>
+        </div>
+      </article>`;
+    }).join('') || '<div class="empty">No agents found. Agent files live in .claude/commands and start with an "# IDENTITY: role" line.</div>'}</div>`;
+}
+
+function agentDrawer(role) {
+  const a = state.agentInfo?.[role];
+  if (!a) return null;
+  const writes = writesOf(role);
+  const reads = state.permissions?.matrix?.[role]?.read ?? [];
+  const acts = agentActivity(role);
+  const skills = state.skills?.[role] ?? [];
+  const pins = state.reminders?.[role] ?? [];
+  const worker = !['lead_agent', 'feature_strategist', 'codebase_archaeologist'].includes(role);
+  return {
+    eyebrow: `<span class="mono tag">${esc(a.command)}</span>`,
+    title: esc(roleName(role)),
+    body: `
+      <div class="actions"><button type="button" class="btn" data-launch-agent="${esc(role)}" data-launch-kind="agent">Start ${esc(roleName(role))}</button>
+        <button type="button" class="btn secondary" data-dislike-agent="${esc(role)}">Log a dislike</button></div>
+      ${a.feedbackRule ? '' : '<p class="tag">This agent doesn\'t record your corrections yet. Add the rule from the Feedback page.</p>'}
+      <p class="tag">${worker ? 'With no task assigned, it starts in consultant mode: it answers questions but writes nothing.' : 'Starts a fresh session with this agent.'}</p>
+      <h3 class="rule">Role</h3><div class="prose">${esc(a.description || 'No description in the command file.')}</div>
+      <dl class="kv" style="margin-top:10px"><dt>Role id</dt><dd class="mono">${esc(role)}</dd><dt>File</dt><dd class="mono">${esc(a.file)}</dd></dl>
+      <h3 class="rule">May write <small>from core.md</small></h3>
+      ${writes === null ? '<div class="empty">This agent has no column in the permission matrix in orchestrator/memory/core.md yet.</div>'
+        : writes.length ? renderValue(writes) : '<div class="empty">Nothing. This agent is read-only.</div>'}
+      ${reads.length ? `<details class="entry"><summary>May read <span class="tag">${reads.length} paths</span></summary>${renderValue(reads)}</details>` : ''}
+      <h3 class="rule">Skills it uses <small>${skills.length}</small></h3>
+      ${skills.length ? `<div class="mini-list">${skills.map((s) => `<button type="button" class="mini" data-open-plugin="${esc(s)}"><span>${esc(s.split('@')[0])}</span><span class="tag">${esc(s.split('@')[1])}</span></button>`).join('')}</div>`
+        : '<div class="empty">None assigned. Install a plugin on the Skills page and tick this agent.</div>'}
+      <h3 class="rule">Pinned lessons <small>${pins.length}</small></h3>
+      ${pins.length ? `<div class="mini-list">${pins.map((id) => { const l = lessons().find((x) => x.id === id); return `<button type="button" class="mini" data-open-lesson="${esc(id)}"><span class="mono tag">${esc(id)}</span><span>${esc(l?.title ?? 'Lesson not found')}</span></button>`; }).join('')}</div>`
+        : '<div class="empty">None. Pin lessons from a lesson\'s panel.</div>'}
+      <h3 class="rule">Recent work <small>${acts.length}</small></h3>
+      ${acts.slice(0, 6).map((m) => `<details class="entry"><summary>${statusBadge(m.status)} <a href="#/projects" data-open-project="${esc(m.project)}">${esc(m.project)}</a> <span class="tag">${fmtDate(m.updated_at)}</span></summary><div class="prose">${esc(m.approach_summary)}</div></details>`).join('')
+        || '<div class="empty">No message entries in any project yet.</div>'}
+    `,
+  };
+}
+
+function newAgentDrawer() {
+  const done = ui.newAgentResult;
+  if (done) {
+    return {
+      eyebrow: '<span class="badge s-blue">created</span>',
+      title: esc(done.command),
+      body: `
+        <p>Seahorse wrote <code>${esc(done.file)}</code>. It is listed on the Agents page now.</p>
+        <h3 class="rule">Two steps left</h3>
+        <ol class="steps">
+          <li>Add a <code>${esc(done.role.split('_')[0])}</code> column for <code>${esc(done.role)}</code> to the permission matrix in <code>orchestrator/memory/core.md</code>, with RW on: ${done.writes.map((w) => `<code>${esc(w)}</code>`).join(', ')}. No agent may edit core.md, so this one is yours.</li>
+          <li>Ask the Lead to assign it tasks. Workers act only on task files the lead creates.</li>
+        </ol>
+        <div class="actions">
+          <button type="button" class="btn" data-open-agent="${esc(done.role)}">Open the new agent</button>
+          <button type="button" class="btn secondary" data-new-agent>Create another</button>
+        </div>`,
+    };
+  }
+  return {
+    eyebrow: '<span class="tag">New agent</span>',
+    title: 'Create an agent',
+    body: `
+      <p class="tag">Seahorse writes a command file in .claude/commands with the same onboarding, message-file and handoff rules as your other agents.</p>
+      ${ui.newAgentError ? `<p class="form-error" role="alert">${esc(ui.newAgentError)}</p>` : ''}
+      ${ui.newAgentProposal ? '<p class="tag">Filled in from a Seahorse proposal. Check it, then create.</p>' : ''}
+      <div class="field"><label for="na-name">Name</label><span class="hint">Lowercase with dashes. Becomes the slash command.</span><input id="na-name" autocomplete="off" placeholder="docs-writer" value="${esc(ui.newAgentPrefill?.name ?? '')}"></div>
+      <div class="field"><label for="na-role">Role id</label><span class="hint">Used in message files and task assignment.</span><input id="na-role" autocomplete="off" placeholder="docs_agent" value="${esc(ui.newAgentPrefill?.role ?? '')}"></div>
+      <div class="field"><label for="na-desc">One-line description</label><input id="na-desc" autocomplete="off" placeholder="Writes and updates user-facing docs in docs/." value="${esc(ui.newAgentPrefill?.description ?? '')}"></div>
+      <div class="field"><label for="na-purpose">What it does</label><span class="hint">A short paragraph. This becomes the agent's role statement.</span><textarea id="na-purpose">${esc(ui.newAgentPrefill?.purpose ?? '')}</textarea></div>
+      <div class="field"><label for="na-writes">May write</label><span class="hint">One path per line, like docs/** . Its own message file is added for you.</span><textarea id="na-writes">${esc(ui.newAgentPrefill?.writes ?? '')}</textarea></div>
+      <div class="actions"><button type="button" class="btn" data-create-agent>Create agent</button></div>`,
+    after: () => {
+      const name = document.getElementById('na-name');
+      const role = document.getElementById('na-role');
+      if (name && role && !name.dataset.bound) {
+        name.dataset.bound = '1';
+        name.addEventListener('input', () => { if (!role.dataset.touched) role.value = name.value.replace(/-/g, '_') + (name.value && !/_agent$/.test(name.value.replace(/-/g, '_')) ? '_agent' : ''); });
+        role.addEventListener('input', () => { role.dataset.touched = '1'; });
+      }
+    },
+  };
+}
+
+async function submitNewAgent() {
+  const val = (id) => document.getElementById(id)?.value ?? '';
+  const btn = document.querySelector('[data-create-agent]');
+  if (btn) { btn.disabled = true; btn.textContent = 'Creating…'; }
+  try {
+    const out = await post('/api/agents', {
+      name: val('na-name').trim(), role: val('na-role').trim(), description: val('na-desc'), purpose: val('na-purpose'),
+      writes: val('na-writes').split('\n').map((s) => s.trim()).filter(Boolean),
+    });
+    ui.newAgentError = null;
+    ui.newAgentResult = out;
+    ui.newAgentPrefill = null;
+    if (ui.newAgentProposal) { await setProposal(ui.newAgentProposal, 'accepted'); ui.newAgentProposal = null; }
+    renderDrawer();
+    toast(`Created <code>${esc(out.command)}</code>.`);
+  } catch (err) {
+    ui.newAgentError = err.message;
+    renderDrawer();
+  }
+}
+
+// ---------- skills (plugin marketplace) ----------
+const market = { data: null, error: null, loading: false, busy: new Set() };
+
+async function loadMarket(refresh = false) {
+  if (market.loading) return;
+  market.loading = true;
+  if (route() === 'skills') render();
+  try {
+    const res = await fetch(`/api/marketplace${refresh ? '?refresh' : ''}`);
+    const out = await res.json();
+    if (!res.ok) throw new Error(out.error ?? res.statusText);
+    market.data = out;
+    market.error = null;
+  } catch (err) {
+    market.error = err.message;
+  } finally {
+    market.loading = false;
+    render();
+    renderDrawer();
+  }
+}
+
+const pluginKey = (p) => p.pluginId ?? p.id ?? (p.name && (p.marketplaceName ?? p.marketplace) ? `${p.name}@${p.marketplaceName ?? p.marketplace}` : p.name);
+const installedSet = () => new Set((market.data?.installed ?? []).map(pluginKey));
+const fmtCount = (n) => n >= 1e6 ? `${(n / 1e6).toFixed(n >= 1e7 ? 0 : 1)}M` : n >= 1e3 ? `${Math.round(n / 1e3)}K` : String(n);
+const findPlugin = (id) => market.data?.available.find((p) => p.pluginId === id) ?? market.data?.installed.find((p) => pluginKey(p) === id);
+const assignedTo = (id) => Object.entries(state.skills ?? {}).filter(([, ids]) => ids.includes(id)).map(([r]) => r);
+
+function pluginRow(p, installed) {
+  const id = pluginKey(p);
+  const busy = market.busy.has(id);
+  const users = assignedTo(id);
+  return `<div class="plugin-row">
+    <button type="button" class="open-btn" data-open-plugin="${esc(id)}">
+      <div class="pname">${esc(p.name ?? id)}</div>
+      ${p.description ? `<div class="pdesc">${esc(p.description)}</div>` : ''}
+      <div class="pmeta">
+        ${p.category ? `<span>${esc(cap(p.category))}</span>` : ''}
+        ${p.author ? `<span>by ${esc(p.author)}</span>` : ''}
+        ${p.installCount ? `<span>${fmtCount(p.installCount)} installs</span>` : ''}
+        <span>${esc(p.marketplaceName ?? id.split('@')[1] ?? '')}</span>
+        ${users.length ? `<span class="pin">Used by ${esc(users.map(roleName).join(', '))}</span>` : ''}
+      </div>
+    </button>
+    ${installed
+      ? `<button type="button" class="btn secondary" data-open-plugin="${esc(id)}">Assign to agents</button>`
+      : `<button type="button" class="btn" data-plugin-action="install" data-plugin-id="${esc(id)}" ${busy ? 'disabled' : ''}>${busy ? 'Installing…' : 'Install'}</button>`}
+  </div>`;
+}
+
+function renderSkills(main) {
+  if (!market.data && !market.error && !market.loading) loadMarket();
+  const head = `<div class="page-head"><h2>Skills</h2><p>Plugins from your installed marketplaces. Installing adds one to this project; assigning tells an agent to use it.</p></div>`;
+  if (market.error) {
+    main.innerHTML = `${head}<div class="notice">Couldn't load the plugin catalog: ${esc(market.error)}</div>
+      <div class="actions"><button type="button" class="btn" data-market-retry>Try again</button></div>`;
+    return;
+  }
+  if (!market.data) {
+    main.innerHTML = `${head}<p class="loading">Asking the claude CLI for the plugin catalog…</p>`;
+    return;
+  }
+  const inst = installedSet();
+  const all = market.data.available;
+  const categories = [...new Set(all.map((p) => p.category).filter(Boolean))].sort();
+  const markets = [...new Set(all.map((p) => p.marketplaceName).filter(Boolean))].sort();
+  const q = ui.marketQ.trim().toLowerCase();
+  const list = all
+    .filter((p) => !inst.has(p.pluginId))
+    .filter((p) => (!ui.marketCat || p.category === ui.marketCat) && (!ui.marketSrc || p.marketplaceName === ui.marketSrc))
+    .filter((p) => !q || `${p.name} ${p.description ?? ''} ${p.category ?? ''} ${p.author ?? ''}`.toLowerCase().includes(q))
+    .sort((a, b) => ui.marketSort === 'name' ? a.name.localeCompare(b.name) : (b.installCount ?? 0) - (a.installCount ?? 0));
+  const installedList = market.data.installed;
+
+  main.innerHTML = `${head}
+    <h3 class="rule">Installed in this project <small>${installedList.length}</small></h3>
+    ${installedList.length ? `<div class="plugin-list">${installedList.map((p) => pluginRow({ ...findPlugin(pluginKey(p)), ...p }, true)).join('')}</div>`
+      : '<div class="empty">Nothing installed yet. Install a plugin below, then assign it to the agents that should use it.</div>'}
+    <h3 class="rule">Browse <small>${all.length} in ${plural(markets.length, 'marketplace')}</small></h3>
+    <div class="toolbar">
+      <input type="search" id="mq" placeholder="Search plugins" aria-label="Search plugins" value="${esc(ui.marketQ)}">
+      <select id="m-cat" aria-label="Category">${options(categories, ui.marketCat, 'Any category')}</select>
+      ${markets.length > 1 ? `<select id="m-src" aria-label="Marketplace">${options(markets, ui.marketSrc, 'Any marketplace')}</select>` : ''}
+      <select id="m-sort" aria-label="Sort"><option value="popular" ${ui.marketSort !== 'name' ? 'selected' : ''}>Most installed</option><option value="name" ${ui.marketSort === 'name' ? 'selected' : ''}>Name</option></select>
+      <span class="summary">${list.length === all.length - inst.size ? '' : `Showing ${list.length}`}</span>
+    </div>
+    <div class="plugin-list">${list.slice(0, ui.marketLimit).map((p) => pluginRow(p, false)).join('') || '<div class="empty">No plugins match. Try another word or category.</div>'}</div>
+    ${list.length > ui.marketLimit ? `<div class="actions"><button type="button" class="btn secondary" data-market-more>Show more (${list.length - ui.marketLimit} left)</button></div>` : ''}`;
+
+  document.getElementById('mq').addEventListener('input', (e) => { ui.marketQ = e.target.value; ui.marketLimit = 40; render(); refocus('mq'); });
+  document.getElementById('m-cat').addEventListener('change', (e) => { ui.marketCat = e.target.value; ui.marketLimit = 40; render(); });
+  document.getElementById('m-src')?.addEventListener('change', (e) => { ui.marketSrc = e.target.value; render(); });
+  document.getElementById('m-sort').addEventListener('change', (e) => { ui.marketSort = e.target.value; render(); });
+}
+
+function pluginDrawer(id) {
+  if (!market.data) { loadMarket(); return { eyebrow: '', title: esc(id.split('@')[0]), body: '<p class="loading">Loading the catalog…</p>' }; }
+  const p = findPlugin(id) ?? { name: id.split('@')[0] };
+  const installed = installedSet().has(id);
+  const users = assignedTo(id);
+  const busy = market.busy.has(id);
+  return {
+    eyebrow: `${p.category ? `<span class="tag">${esc(cap(p.category))}</span>` : ''} ${installed ? '<span class="badge s-blue">installed</span>' : ''}`,
+    title: esc(p.name ?? id),
+    body: `
+      <div class="actions">
+        ${installed
+          ? `<button type="button" class="btn secondary" data-plugin-action="uninstall" data-plugin-id="${esc(id)}" ${busy ? 'disabled' : ''}>${busy ? 'Removing…' : 'Uninstall from project'}</button>`
+          : `<button type="button" class="btn" data-plugin-action="install" data-plugin-id="${esc(id)}" ${busy ? 'disabled' : ''}>${busy ? 'Installing…' : 'Install in this project'}</button>`}
+        ${p.homepage ? `<a class="btn secondary" href="${esc(p.homepage)}" target="_blank" rel="noopener noreferrer">Homepage</a>` : ''}
+      </div>
+      <p class="tag">Installs with <code>claude plugin install ${esc(id)} --scope project</code>, so it lands in this workspace's .claude/settings.json for everyone on the project.</p>
+      <h3 class="rule">About</h3><div class="prose">${esc(p.description || 'No description in the marketplace.')}</div>
+      <dl class="kv" style="margin-top:10px">
+        <dt>Plugin id</dt><dd class="mono">${esc(id)}</dd>
+        ${p.author ? `<dt>Author</dt><dd>${esc(p.author)}</dd>` : ''}
+        ${p.version ? `<dt>Version</dt><dd>${esc(p.version)}</dd>` : ''}
+        ${p.installCount ? `<dt>Installs</dt><dd>${esc(p.installCount.toLocaleString())}</dd>` : ''}
+      </dl>
+      <h3 class="rule">Agents that use it <small>${users.length}</small></h3>
+      ${installed ? `<p class="tag">When you start a checked agent from Seahorse, its prompt tells it to use this plugin's skills where they help.</p>
+        ${Object.keys(agents()).map((r) => `<label class="check-row"><input type="checkbox" data-skill-agent="${esc(r)}" data-skill-plugin="${esc(id)}" ${users.includes(r) ? 'checked' : ''}>
+          <span>${esc(roleName(r))}</span><span class="mono">${esc(agents()[r])}</span></label>`).join('')}`
+        : '<div class="empty">Install it first, then pick the agents that should use it.</div>'}
+    `,
+  };
+}
+
+async function runPluginAction(action, id, btn) {
+  if (market.busy.has(id)) return;
+  market.busy.add(id);
+  render();
+  renderDrawer();
+  toast(`${action === 'install' ? 'Installing' : 'Removing'} <code>${esc(id)}</code>. This can take a minute…`, { sticky: true });
+  try {
+    const out = await post('/api/plugins', { action, pluginId: id });
+    market.data = { ...market.data, installed: out.installed };
+    if (out.ok) {
+      toast(action === 'install' ? `Installed <code>${esc(id)}</code>. Now tick the agents that should use it.` : `Removed <code>${esc(id)}</code> from this project.`);
+      if (action === 'install') openDrawer('plugin', id);
+    } else {
+      toast(`The claude CLI couldn't ${action} it:<pre>${esc(out.output)}</pre>`, { error: true, sticky: true });
+    }
+  } catch (err) {
+    toast(`Couldn't ${action} <code>${esc(id)}</code>: ${esc(err.message)}`, { error: true, sticky: true });
+  } finally {
+    market.busy.delete(id);
+    render();
+    renderDrawer();
+  }
+}
+
+async function setSkill(pluginId, agent, on, input) {
+  input.disabled = true;
+  try {
+    const out = await post('/api/skills', { pluginId, agent, on });
+    state = { ...state, skills: out.skills };
+    render();
+    renderDrawer();
+    toast(on ? `${roleName(agent)} will be told to use ${esc(pluginId.split('@')[0])} when you start it from Seahorse.` : `${roleName(agent)} won't be told to use ${esc(pluginId.split('@')[0])} any more.`);
+  } catch (err) {
+    input.checked = !on;
+    input.disabled = false;
+    toast(`Couldn't save: ${esc(err.message)}`, { error: true, sticky: true });
+  }
+}
+
+// ---------- feedback ----------
+const SOURCE_LABEL = { agent: 'Agent recorded', you: 'You logged', reviewer: 'Reviewer rejected' };
+const fbItems = () => state?.feedback?.items ?? [];
+const proposals = () => state?.proposals ?? [];
+// Repeats that still need attention: no accepted proposal yet.
+const openRepeats = () => (state?.feedback?.clusters ?? []).filter((c) => !proposals().some((p) => p.cluster === c.id && p.status === 'accepted'));
+const agentLabel = (r) => (r ? roleName(r) : 'Unassigned');
+
+function proposalCard(p) {
+  const kind = { lesson: 'Lesson', plugin: 'Plugin', agent: 'New agent' }[p.kind];
+  let detail = '';
+  if (p.kind === 'lesson' && p.lesson) detail = `<p><b>Rule:</b> ${esc(p.lesson.fix ?? '')}</p>`;
+  if (p.kind === 'plugin') detail = `<p><b>${esc(String(p.pluginId ?? '').split('@')[0])}</b>${(p.agents ?? []).length ? ` for ${esc(p.agents.map(roleName).join(', '))}` : ''}</p>`;
+  if (p.kind === 'agent' && p.agent) detail = `<p><b>${esc(p.agent.name ?? '')}</b>: ${esc(p.agent.description ?? '')}${(p.agent.writes ?? []).length ? ` <span class="tag">writes ${esc(p.agent.writes.join(', '))}</span>` : ''}</p>`;
+  const acceptLabel = { lesson: 'Send to Lead to file it', plugin: 'Open the plugin', agent: 'Create this agent' }[p.kind];
+  return `<div class="proposal ${esc(p.status)}">
+    <div class="eyebrow"><span class="badge ${p.kind === 'agent' ? 's-red' : 's-blue'}">${kind}</span> ${p.status !== 'open' ? `<span class="badge s-muted">${esc(p.status)}</span>` : ''}</div>
+    <div class="lr-title" style="font-family:var(--serif);font-weight:600;margin-top:4px">${esc(p.title ?? '')}</div>
+    <p class="tag" style="margin:4px 0">${esc(p.reason ?? '')}</p>
+    ${detail}
+    <div class="actions">
+      ${p.status === 'open'
+        ? `<button type="button" class="btn small" data-proposal-accept="${esc(p.id)}">${acceptLabel}</button>
+           <button type="button" class="btn small secondary" data-proposal-status="dismissed" data-proposal-id="${esc(p.id)}">Dismiss</button>`
+        : `<button type="button" class="link-btn" data-proposal-status="open" data-proposal-id="${esc(p.id)}">Reopen</button>`}
+    </div>
+  </div>`;
+}
+
+function evidenceLine(it) {
+  return `<li><span class="tag">${fmtDay(it.when) || 'Undated'}<br>${esc(SOURCE_LABEL[it.source] ?? it.source)}</span>
+    <span>${esc(it.text)}${it.project ? ` <a href="#/projects" data-open-project="${esc(it.project)}" class="tag">${esc(it.project)}</a>` : ''}
+    ${it.source === 'you' ? ` <button type="button" class="link-btn" data-fb-remove="${esc(it.id.slice(2))}">Remove</button>` : ''}</span></li>`;
+}
+
+function renderFeedback(main) {
+  const items = fbItems();
+  const clusters = state.feedback?.clusters ?? [];
+  const info = state.agentInfo ?? {};
+  const withRule = Object.values(info).filter((a) => a.feedbackRule).length;
+  const total = Object.keys(info).length;
+  const needsSetup = withRule < total || !state.feedback?.schemaReady;
+  const byId = new Map(items.map((i) => [i.id, i]));
+  const clusterIds = new Set(clusters.map((c) => c.id));
+  const orphanProposals = proposals().filter((p) => !clusterIds.has(p.cluster));
+  const list = items.filter((i) => (!ui.fbFilterAgent || (i.agent ?? '') === ui.fbFilterAgent) && (!ui.fbFilterSource || i.source === ui.fbFilterSource));
+
+  main.innerHTML = `
+    <div class="page-head"><h2>Feedback</h2><p>What you corrected, and fixes for the things that keep coming back</p></div>
+    ${needsSetup ? `<div class="notice">
+      ${withRule} of ${plural(total, 'agent')} record your corrections${!state.feedback?.schemaReady ? ', and the message schema rejects a user_feedback field' : ''}.
+      Seahorse can add a short "User feedback" rule to each agent file${!state.feedback?.schemaReady ? ' and allow the field in orchestrator/schemas/agent-message.schema.json' : ''}.
+      <div class="actions"><button type="button" class="btn" data-feedback-setup>Add the feedback rule</button></div></div>` : ''}
+
+    <h3 class="rule">Log a dislike</h3>
+    <div class="fb-form">
+      <select id="fb-agent" class="select-inline" aria-label="Which agent">${options(Object.keys(agents()), ui.fbAgent, 'Which agent? (optional)').replace(/>([a-z_]+)</g, (m, r) => `>${esc(roleName(r))}<`)}</select>
+      <select id="fb-project" class="select-inline" aria-label="Which project"><option value="">Which project? (optional)</option>${projectList().map((p) => `<option value="${esc(p.id)}" ${p.id === ui.fbProject ? 'selected' : ''}>${esc(p.id)}</option>`).join('')}</select>
+      <textarea id="fb-text" aria-label="What you didn't like" placeholder="What didn't you like? e.g. It used inline styles again">${esc(ui.fbText)}</textarea>
+    </div>
+    <div class="actions"><button type="button" class="btn" data-fb-log>Log it</button></div>
+
+    <h3 class="rule">Keeps coming back <small>${clusters.length}</small></h3>
+    ${clusters.length ? clusters.map((c) => {
+      const ps = proposals().filter((p) => p.cluster === c.id);
+      const evidence = c.items.map((id) => byId.get(id)).filter(Boolean);
+      return `<section class="repeat">
+        <h4>${esc(agentLabel(c.agent))}: ${esc(c.label.join(', ') || 'similar feedback')}</h4>
+        <div class="tag">${plural(evidence.length, 'time')} across ${plural(c.occasions, 'occasion')}${c.last ? `, last ${fmtDay(c.last)}` : ''}</div>
+        <ul class="ev-list">${evidence.map(evidenceLine).join('')}</ul>
+        ${ps.map(proposalCard).join('')}
+        <div class="actions"><button type="button" class="btn ${ps.length ? 'secondary' : ''}" data-reflect="${esc(c.id)}">${ps.length ? 'Ask Claude again' : 'Ask Claude for a fix'}</button></div>
+        ${ps.length ? '' : '<p class="tag">Claude reads this feedback and the agent\'s instructions, then proposes a lesson, a plugin, or a new agent. Nothing changes until you accept one.</p>'}
+      </section>`;
+    }).join('') : `<div class="empty">Nothing has come up twice yet. When the same correction repeats for an agent, it shows here with a way to fix it for good.</div>`}
+
+    ${orphanProposals.length ? `<h3 class="rule">Earlier proposals <small>${orphanProposals.length}</small></h3>${orphanProposals.map(proposalCard).join('')}` : ''}
+
+    <h3 class="rule">All feedback <small>${items.length}</small></h3>
+    <div class="toolbar">
+      <select id="fb-f-agent" aria-label="Filter by agent">${options([...new Set(items.map((i) => i.agent).filter(Boolean))], ui.fbFilterAgent, 'Any agent')}</select>
+      <select id="fb-f-source" aria-label="Filter by source">${options(['agent', 'you', 'reviewer'], ui.fbFilterSource, 'Any source').replace(/>(agent|you|reviewer)</g, (m, s) => `>${SOURCE_LABEL[s]}<`)}</select>
+    </div>
+    ${list.length ? `<ul class="ev-list">${list.map((it) => evidenceLine({ ...it, text: `${agentLabel(it.agent)}: ${it.text}` })).join('')}</ul>`
+      : `<div class="empty">${items.length ? 'No feedback matches these filters.' : 'No feedback yet. Agents record your corrections once they have the feedback rule, and reviewer rejections appear here automatically.'}</div>`}`;
+
+  const bind = (id, key, ev = 'change') => document.getElementById(id)?.addEventListener(ev, (e) => { ui[key] = e.target.value; if (ev === 'change') render(); });
+  bind('fb-agent', 'fbAgent');
+  bind('fb-project', 'fbProject');
+  bind('fb-text', 'fbText', 'input');
+  bind('fb-f-agent', 'fbFilterAgent');
+  bind('fb-f-source', 'fbFilterSource');
+}
+
+async function logDislike() {
+  if (!ui.fbText.trim()) { toast('Write what you didn\'t like first.', { error: true }); document.getElementById('fb-text')?.focus(); return; }
+  try {
+    await post('/api/feedback', { agent: ui.fbAgent, project: ui.fbProject, text: ui.fbText });
+    ui.fbText = '';
+    toast('Logged. If it comes up again, Seahorse will group it and offer a fix.');
+    render();
+  } catch (err) {
+    toast(`Couldn't log it: ${esc(err.message)}`, { error: true, sticky: true });
+  }
+}
+
+function dislike(agent, project) {
+  ui.fbAgent = agent ?? '';
+  ui.fbProject = project ?? '';
+  if (ui.drawer) closeDrawer();
+  location.hash = '#/feedback';
+  render();
+  document.getElementById('fb-text')?.focus();
+}
+
+async function acceptProposal(id) {
+  const p = proposals().find((x) => x.id === id);
+  if (!p) return;
+  if (p.kind === 'lesson') {
+    await launchAgent({ agent: 'lead_agent', kind: 'proposal', id });
+    await setProposal(id, 'accepted');
+  } else if (p.kind === 'plugin') {
+    await setProposal(id, 'accepted');
+    openDrawer('plugin', p.pluginId);
+    toast(`Install it if needed, then tick ${(p.agents ?? []).map(roleName).join(', ') || 'the agents that should use it'}.`, { sticky: true });
+  } else if (p.kind === 'agent') {
+    const a = p.agent ?? {};
+    ui.newAgentResult = null;
+    ui.newAgentError = null;
+    ui.newAgentPrefill = { name: a.name ?? '', role: a.role ?? '', description: a.description ?? '', purpose: a.purpose ?? '', writes: (a.writes ?? []).join('\n') };
+    ui.newAgentProposal = id;
+    document.getElementById('drawer-root').innerHTML = '';
+    openDrawer('newAgent', 'new');
+  }
+}
+
+async function setProposal(id, status) {
+  try {
+    await post('/api/proposals', { id, status });
+    state = { ...state, proposals: proposals().map((p) => (p.id === id ? { ...p, status } : p)) };
+    render();
+  } catch (err) {
+    toast(`Couldn't update the proposal: ${esc(err.message)}`, { error: true, sticky: true });
+  }
+}
+
+async function startReflect(cluster) {
+  toast('Preparing the feedback for Claude…', { sticky: true });
+  try {
+    const out = await post('/api/reflect', { cluster });
+    if (out.launched) toast('Opened <code>/seahorse-reflect</code> in a new Terminal window. Its proposals appear here when it finishes.');
+    else toast(`Run this to get proposals:<pre>${esc(out.command)}</pre><div class="actions"><button class="btn" type="button" data-copy="${esc(out.command)}">Copy command</button></div>`, { sticky: true, error: !!out.error });
+  } catch (err) {
+    toast(`Couldn't start the reflection: ${esc(err.message)}`, { error: true, sticky: true });
+  }
+}
+
+async function setupFeedbackRule() {
+  try {
+    const out = await post('/api/feedback/setup', {});
+    toast(out.changed.length ? `Updated ${plural(out.changed.length, 'file')}: ${out.changed.map((f) => `<code>${esc(f)}</code>`).join(', ')}` : 'Every agent already had the rule.', { sticky: true });
+  } catch (err) {
+    toast(`Couldn't add the rule: ${esc(err.message)}`, { error: true, sticky: true });
+  }
+}
+
+// ---------- setup (onboarding) ----------
+function obState() {
+  const ob = state.onboarding ?? {};
+  const pr = ob.proposal;
+  // Fresh selections whenever a new proposal arrives.
+  if (pr && (!ui.ob || ui.ob.proposalAt !== ob.proposalAt)) {
+    const existing = state.agentInfo ?? {};
+    ui.ob = {
+      proposalAt: ob.proposalAt,
+      prefix: ob.prefix ?? `${pr.project.slug}-`,
+      agents: Object.fromEntries(pr.agents.map((a) => [a.role, { include: !existing[a.role], writes: a.writes.join('\n') }])),
+      plugins: Object.fromEntries(pr.plugins.map((p) => [p.pluginId, { include: true }])),
+      backlog: true,
+      report: null, progress: [], busy: false,
+    };
+  }
+  return ob;
+}
+
+function renderSetup(main) {
+  const ob = obState();
+  const pr = ob.proposal;
+  const configured = state.configured;
+  if (pr && !market.data && !market.loading && !market.error) loadMarket();
+  const existing = state.agentInfo ?? {};
+  const catalogIds = new Set((market.data?.available ?? []).map((p) => p.pluginId));
+  const installed = installedSet();
+  const s = ui.ob;
+  const step = (n, title, status, body) => `<section class="step ${status}"><div class="step-num" aria-hidden="true">${n}</div><div><h3>${title}</h3>${body}</div></section>`;
+
+  const discoverBody = !ob.startedAt && !pr
+    ? `<p>A read-only Claude agent studies this repository: its stack, modules, conventions and the rules that must never break. It writes one file, <code>.seahorse/onboarding/proposal.json</code>, and you review everything below before anything is created.</p>
+       <div class="actions"><button type="button" class="btn" data-onboard-start>Start discovery</button></div>`
+    : !pr
+      ? `<p class="loading">Waiting for the onboarding agent. This page updates by itself when its proposal lands.</p>
+         ${ob.proposalError ? `<div class="notice">The proposal file isn't valid JSON yet (${esc(ob.proposalError)}). If the agent finished, ask it to fix the file.</div>` : ''}
+         <div class="actions"><button type="button" class="btn secondary" data-onboard-start>Start discovery again</button></div>`
+      : `<div class="panel">
+          <h4>${esc(pr.project.name)}</h4>
+          <p style="margin:0 0 8px">${esc(pr.project.summary)}</p>
+          ${pr.project.stack.length ? `<div class="chips">${pr.project.stack.map((x) => `<span class="chip">${esc(x)}</span>`).join('')}</div>` : ''}
+        </div>
+        <details class="entry"><summary>Modules <span class="tag">${pr.project.modules.length}</span></summary>
+          <table class="table"><tbody>${pr.project.modules.map((m) => `<tr><td class="mono">${esc(m.path)}</td><td>${esc(m.what)}</td></tr>`).join('')}</tbody></table></details>
+        <details class="entry"><summary>Rules that must never break <span class="tag">${pr.project.constraints.length}</span></summary>
+          ${pr.project.constraints.length ? `<ul class="plain">${pr.project.constraints.map((c) => `<li>${esc(c.rule)}${c.evidence ? ` <span class="tag mono">${esc(c.evidence)}</span>` : ''}</li>`).join('')}</ul>` : '<p class="tag">None found. Add your own to core.md after setup.</p>'}</details>
+        <details class="entry"><summary>Conventions <span class="tag">${pr.project.conventions.length}</span></summary>${renderValue(pr.project.conventions)}</details>
+        <p class="tag">Found ${fmtDate(ob.proposalAt)}. <button type="button" class="link-btn" data-onboard-start>Run discovery again</button></p>`;
+
+  const coreRoles = ['lead_agent', 'feature_strategist', 'reviewer_agent', 'codebase_archaeologist'];
+  const agentsBody = !pr ? '<p>After discovery: the agents it proposes and exactly what each may write.</p>' : `
+    <div class="field" style="max-width:320px"><label for="ob-prefix">Command prefix</label><span class="hint">Agents become <span class="mono">/${esc(s.prefix)}lead-agent</span> and so on.</span>
+      <input id="ob-prefix" value="${esc(s.prefix)}" autocomplete="off"></div>
+    <p class="label-sm">Always included</p>
+    <div class="chips" style="margin-bottom:12px">${coreRoles.map((r) => `<span class="chip">${esc(roleName(r))}${existing[r] ? ' (exists)' : ''}</span>`).join('')}</div>
+    <p class="label-sm">Workers for this codebase</p>
+    ${pr.agents.length ? pr.agents.map((a) => {
+      const sel = s.agents[a.role];
+      const exists = !!existing[a.role];
+      return `<div class="panel pick">
+        <input type="checkbox" id="ob-a-${esc(a.role)}" data-ob-agent="${esc(a.role)}" ${sel.include ? 'checked' : ''} ${exists ? 'disabled' : ''} aria-label="Include ${esc(a.name)}">
+        <div>
+          <h4>${esc(a.name)} <span class="mono tag">${esc(a.role)}</span>${exists ? ' <span class="badge s-muted">exists, kept as is</span>' : ''}</h4>
+          <p style="margin:0 0 6px">${esc(a.description)}</p>
+          ${a.why ? `<p class="tag" style="margin:0 0 6px">${esc(a.why)}</p>` : ''}
+          ${exists ? '' : `<label class="label-sm" for="ob-w-${esc(a.role)}">May write (one path per line)</label>
+          <textarea id="ob-w-${esc(a.role)}" data-ob-writes="${esc(a.role)}">${esc(sel.writes)}</textarea>`}
+        </div></div>`;
+    }).join('') : '<div class="empty">Discovery proposed no workers. You can add agents later from the Agents page.</div>'}
+    <details class="entry"><summary>Write permissions this creates</summary>
+      <table class="table"><thead><tr><th>Path</th><th>Who may write</th></tr></thead><tbody>
+        <tr><td class="mono">orchestrator.json, backlog.json, tasks, status, lessons</td><td>Lead</td></tr>
+        <tr><td class="mono">orchestrator/research/*.md</td><td>Reviewer</td></tr>
+        <tr><td class="mono">CLAUDE.md, **/ARCHITECTURE.md, patterns.json</td><td>Archaeologist</td></tr>
+        ${pr.agents.filter((a) => s.agents[a.role].include && !existing[a.role]).flatMap((a) => s.agents[a.role].writes.split('\n').map((w) => w.trim()).filter(Boolean).map((w) => `<tr><td class="mono">${esc(w)}</td><td>${esc(a.name)}</td></tr>`)).join('')}
+        <tr><td class="mono">core.md, domain_context.md, schemas</td><td>Nobody (you edit these)</td></tr>
+      </tbody></table></details>`;
+
+  const toolsBody = !pr ? '<p>After discovery: plugins from your marketplaces that fit this stack.</p>' : !pr.plugins.length ? '<div class="empty">Discovery proposed no plugins. Browse the Skills page any time.</div>' : `
+    ${!market.data ? `<p class="loading">${market.error ? `Couldn't load the catalog: ${esc(market.error)}` : 'Checking the plugin catalog…'}</p>` : ''}
+    ${pr.plugins.map((p) => {
+      const known = !market.data || catalogIds.has(p.pluginId) || installed.has(p.pluginId);
+      const isInstalled = installed.has(p.pluginId);
+      return `<div class="panel pick">
+        <input type="checkbox" data-ob-plugin="${esc(p.pluginId)}" ${s.plugins[p.pluginId].include && known && !isInstalled ? 'checked' : ''} ${known && !isInstalled ? '' : 'disabled'} aria-label="Install ${esc(p.pluginId)}">
+        <div><h4>${esc(p.pluginId.split('@')[0])} ${isInstalled ? '<span class="badge s-blue">installed</span>' : ''}${known ? '' : ' <span class="badge s-red">not in your marketplaces</span>'}</h4>
+          <p style="margin:0 0 6px">${esc(p.why)}</p>
+          ${p.agents.length ? `<div class="tag">For ${esc(p.agents.map(roleName).join(', '))}</div>` : ''}</div></div>`;
+    }).join('')}`;
+
+  const backlogBody = !pr ? '<p>After discovery: issues it found, with the file that shows each one.</p>' : !pr.backlog.length ? '<div class="empty">Discovery found no issues to log.</div>' : `
+    ${configured
+      ? '<p>backlog.json already exists and belongs to the lead, so these are listed for reference only. Send the ones you want to the Lead from the Backlog page after logging them.</p>'
+      : `<label class="check-row"><input type="checkbox" id="ob-backlog" ${s.backlog ? 'checked' : ''}><span>Start backlog.json with these ${plural(pr.backlog.length, 'issue')}</span></label>`}
+    <ul class="ev-list">${pr.backlog.map((b) => `<li><span>${prioBadge(b.priority)}<br><span class="mono tag">${esc(b.id)}</span></span><span>${esc(b.title)} <span class="mono tag">${esc(b.evidence)}</span></span></li>`).join('')}</ul>`;
+
+  const applyBody = !pr ? '<p>Seahorse writes the agent files and the orchestrator memory, then installs the plugins you kept. Existing files are never overwritten.</p>' : `
+    <p>Creates the agent files and the orchestrator memory (core.md with the permission matrix, domain_context.md, patterns, empty lessons), then installs the ticked plugins and assigns them. Files that already exist are kept as they are.</p>
+    <div class="actions"><button type="button" class="btn" data-onboard-apply ${s.busy ? 'disabled' : ''}>${s.busy ? 'Working…' : configured ? 'Add what\'s missing' : 'Create the team'}</button></div>
+    ${s.progress.length ? `<ul class="plain progress">${s.progress.map((x) => `<li>${esc(x.label)}: <b>${esc(x.status)}</b></li>`).join('')}</ul>` : ''}
+    ${s.report ? `<details class="entry" open><summary>Files <span class="tag">${s.report.filter((r) => r.status === 'created').length} created, ${s.report.filter((r) => r.status === 'kept').length} kept</span></summary>
+      <ul class="plain">${s.report.map((r) => `<li><span class="mono">${esc(r.path)}</span> <span class="tag">${esc(r.status)}</span></li>`).join('')}</ul></details>
+      ${s.busy ? '' : `<div class="panel"><h4>Next</h4><ol class="steps">
+        <li>Read <span class="mono">orchestrator/memory/core.md</span> and add any rule discovery missed. Only you edit it.</li>
+        <li>Open the <a href="#/agents">Agents</a> page to see the team, then start the Lead from the <a href="#/backlog">Backlog</a>.</li></ol></div>`}` : ''}`;
+
+  const done1 = !!pr;
+  const done2 = !!s?.report;
+  main.innerHTML = `
+    <div class="page-head"><h2>Setup</h2><p>${configured ? 'This workspace is set up. Discovery can still suggest agents and tools you don\'t have yet; applying only adds what\'s missing.' : `Turn ${esc(state.workspace)} into an agent team: discover the project, review the team and its permissions, pick tools.`}</p></div>
+    ${step(1, 'Discover the project', done1 ? 'done' : 'current', discoverBody)}
+    ${step(2, 'Agents and permissions', done1 && !done2 ? 'current' : done2 ? 'done' : '', agentsBody)}
+    ${step(3, 'Tools', done1 && !done2 ? 'current' : done2 ? 'done' : '', toolsBody)}
+    ${step(4, 'Starting backlog', done1 && !done2 ? 'current' : done2 ? 'done' : '', backlogBody)}
+    ${step(5, 'Create', done2 ? 'done' : done1 ? 'current' : '', applyBody)}`;
+
+  document.getElementById('ob-prefix')?.addEventListener('input', (e) => { s.prefix = e.target.value; });
+  document.getElementById('ob-backlog')?.addEventListener('change', (e) => { s.backlog = e.target.checked; });
+  main.querySelectorAll('[data-ob-agent]').forEach((el) => el.addEventListener('change', () => { s.agents[el.dataset.obAgent].include = el.checked; render(); }));
+  main.querySelectorAll('[data-ob-writes]').forEach((el) => el.addEventListener('input', () => { s.agents[el.dataset.obWrites].writes = el.value; }));
+  main.querySelectorAll('[data-ob-plugin]').forEach((el) => el.addEventListener('change', () => { s.plugins[el.dataset.obPlugin].include = el.checked; }));
+}
+
+async function startOnboarding() {
+  toast('Preparing discovery…', { sticky: true });
+  try {
+    const out = await post('/api/onboarding/start', {});
+    if (out.launched) toast('Opened <code>/seahorse-onboard</code> in a new Terminal window. Its proposal appears here when it finishes.');
+    else toast(`Run this to start discovery:<pre>${esc(out.command)}</pre><div class="actions"><button class="btn" type="button" data-copy="${esc(out.command)}">Copy command</button></div>`, { sticky: true, error: !!out.error });
+  } catch (err) {
+    toast(`Couldn't start discovery: ${esc(err.message)}`, { error: true, sticky: true });
+  }
+}
+
+async function applyOnboarding() {
+  const s = ui.ob;
+  const pr = state.onboarding?.proposal;
+  if (!s || !pr || s.busy) return;
+  const existing = state.agentInfo ?? {};
+  const agentsSel = pr.agents.filter((a) => s.agents[a.role].include && !existing[a.role])
+    .map((a) => ({ role: a.role, writes: s.agents[a.role].writes.split('\n').map((w) => w.trim()).filter(Boolean) }));
+  const installed = installedSet();
+  const pluginsSel = pr.plugins.filter((p) => s.plugins[p.pluginId].include && !installed.has(p.pluginId) && (market.data?.available ?? []).some((x) => x.pluginId === p.pluginId));
+  s.busy = true;
+  s.progress = [{ label: 'Agent files and memory', status: 'writing' }];
+  render();
+  try {
+    const out = await post('/api/onboarding/apply', { prefix: s.prefix, agents: agentsSel, backlog: s.backlog });
+    s.report = out.report;
+    s.progress[0].status = 'done';
+    render();
+    await load();
+    for (const p of pluginsSel) {
+      const row = { label: `Install ${p.pluginId.split('@')[0]}`, status: 'installing' };
+      s.progress.push(row);
+      render();
+      try {
+        const res = await post('/api/plugins', { action: 'install', pluginId: p.pluginId });
+        market.data = { ...market.data, installed: res.installed };
+        row.status = res.ok ? 'installed' : 'failed (see the Skills page)';
+        if (res.ok) {
+          for (const role of p.agents.filter((r) => state.agents?.[r])) await post('/api/skills', { pluginId: p.pluginId, agent: role, on: true });
+        }
+      } catch (err) {
+        row.status = `failed: ${err.message}`;
+      }
+      render();
+    }
+    toast(state.configured ? 'Your agent team is ready.' : 'Done.');
+  } catch (err) {
+    s.progress[0].status = `failed: ${err.message}`;
+    toast(`Couldn't create the team: ${esc(err.message)}`, { error: true, sticky: true });
+  } finally {
+    s.busy = false;
+    await load();
+  }
+}
+
+// ---------- detail panel ----------
+let lastFocus = null;
+function renderDrawer() {
+  const root = document.getElementById('drawer-root');
+  const builders = { item: itemDrawer, project: projectDrawer, lesson: lessonDrawer, agent: agentDrawer, plugin: pluginDrawer, newAgent: newAgentDrawer };
+  const d = ui.drawer && builders[ui.drawer.type]?.(ui.drawer.id);
+  if (!d) { root.innerHTML = ''; return; }
+  const scroll = root.querySelector('.drawer-body')?.scrollTop ?? 0;
+  const openDetails = [...root.querySelectorAll('details')].map((el) => el.open);
+  // Live refreshes must not wipe what someone is typing into a form in the panel.
+  const fields = Object.fromEntries([...root.querySelectorAll('input[id], textarea[id]')].map((el) => [el.id, el.value]));
+  const focused = document.activeElement?.closest?.('#drawer-root') ? document.activeElement.id : null;
+  root.innerHTML = `<div class="scrim" data-close></div>
+    <aside class="drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title">
+      <div class="drawer-head">
+        <div><div class="eyebrow">${d.eyebrow}</div><h2 id="drawer-title">${d.title}</h2></div>
+        <button class="theme-btn close" type="button" data-close>Close</button>
+      </div>
+      <div class="drawer-body">${d.body}</div>
+    </aside>`;
+  // Live refreshes re-render the panel; keep the reader's place.
+  root.querySelectorAll('details').forEach((el, n) => { if (openDetails[n]) el.open = true; });
+  for (const [id, value] of Object.entries(fields)) { const el = document.getElementById(id); if (el && el.type !== 'checkbox') el.value = value; }
+  if (focused) document.getElementById(focused)?.focus();
+  root.querySelector('.drawer-body').scrollTop = scroll;
+  d.after?.();
+}
+
+function openDrawer(type, id) {
+  if (!ui.drawer) lastFocus = document.activeElement;
+  ui.drawer = { type, id };
+  renderDrawer();
+  document.querySelector('.drawer .close')?.focus();
+}
+function closeDrawer() {
+  ui.drawer = null;
+  renderDrawer();
+  lastFocus?.focus?.();
+}
+
+document.addEventListener('click', (e) => {
+  const launchBtn = e.target.closest('[data-launch-agent]');
+  if (launchBtn) {
+    const d = launchBtn.dataset;
+    return launchAgent({ agent: d.launchAgent, kind: d.launchKind, id: d.launchId, project: d.launchProject || undefined, action: d.launchAction, from: d.launchFrom });
+  }
+  const agentLink = e.target.closest('[data-open-agent]');
+  if (agentLink) {
+    e.preventDefault();
+    if (agentLink.tagName === 'A' && route() !== 'agents') location.hash = '#/agents';
+    return openDrawer('agent', agentLink.dataset.openAgent);
+  }
+  const pluginLink = e.target.closest('[data-open-plugin]');
+  if (pluginLink) return openDrawer('plugin', pluginLink.dataset.openPlugin);
+  if (e.target.closest('[data-onboard-start]')) return startOnboarding();
+  if (e.target.closest('[data-onboard-apply]')) return applyOnboarding();
+  if (e.target.closest('[data-feedback-setup]')) return setupFeedbackRule();
+  if (e.target.closest('[data-fb-log]')) return logDislike();
+  const fbRemove = e.target.closest('[data-fb-remove]');
+  if (fbRemove) return post('/api/feedback', { remove: fbRemove.dataset.fbRemove }).then(() => toast('Removed.'), (err) => toast(esc(err.message), { error: true }));
+  const reflect = e.target.closest('[data-reflect]');
+  if (reflect) return startReflect(reflect.dataset.reflect);
+  const accept = e.target.closest('[data-proposal-accept]');
+  if (accept) return acceptProposal(accept.dataset.proposalAccept);
+  const pStatus = e.target.closest('[data-proposal-status]');
+  if (pStatus) return setProposal(pStatus.dataset.proposalId, pStatus.dataset.proposalStatus);
+  const dis = e.target.closest('[data-dislike-agent]');
+  if (dis) return dislike(dis.dataset.dislikeAgent, dis.dataset.dislikeProject);
+  if (e.target.closest('[data-new-agent]')) {
+    ui.newAgentResult = null;
+    ui.newAgentError = null;
+    ui.newAgentPrefill = null;
+    ui.newAgentProposal = null;
+    document.getElementById('drawer-root').innerHTML = ''; // start with an empty form
+    return openDrawer('newAgent', 'new');
+  }
+  if (e.target.closest('[data-wf-switch]')) { ui.workflowProject = state.orchestrator?.active_project ?? ''; return render(); }
+  const pluginBtn = e.target.closest('[data-plugin-action]');
+  if (pluginBtn) return runPluginAction(pluginBtn.dataset.pluginAction, pluginBtn.dataset.pluginId, pluginBtn);
+  if (e.target.closest('[data-create-agent]')) return submitNewAgent();
+  if (e.target.closest('[data-market-retry]')) { market.error = null; market.data = null; return loadMarket(true); }
+  if (e.target.closest('[data-market-more]')) { ui.marketLimit += 40; return render(); }
+  const lesson = e.target.closest('[data-open-lesson]');
+  if (lesson) {
+    e.preventDefault();
+    if (lesson.tagName === 'A' && route() !== 'lessons') location.hash = '#/lessons';
+    return openDrawer('lesson', lesson.dataset.openLesson);
+  }
+  const copy = e.target.closest('[data-copy]');
+  if (copy) {
+    navigator.clipboard?.writeText(copy.dataset.copy).then(() => { copy.textContent = 'Copied'; }, () => { copy.textContent = 'Copy failed, select the text above'; });
+    return;
+  }
+  if (e.target.closest('[data-toast-close]')) { document.getElementById('toast-root').innerHTML = ''; return; }
+  if (e.target.closest('[data-close]')) return closeDrawer();
+  const item = e.target.closest('[data-open-item]');
+  if (item) return openDrawer('item', item.dataset.openItem);
+  const project = e.target.closest('[data-open-project]');
+  if (project) {
+    e.preventDefault();
+    if (project.tagName === 'A' && route() !== 'projects') location.hash = '#/projects';
+    return openDrawer('project', project.dataset.openProject);
+  }
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && ui.drawer) return closeDrawer();
+  // Cards are divs (buttons don't drag reliably in every browser), so give them button keys.
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches?.('.card[role="button"]')) {
+    e.preventDefault();
+    e.target.click();
+  }
+});
+
+// ---------- main render + live updates ----------
+function render() {
+  if (!state) return;
+  renderHeader();
+  const main = document.getElementById('main');
+  const view = route();
+  const views = {
+    projects: renderProjects, lessons: renderLessons, workflow: renderWorkflow, agents: renderAgents,
+    skills: renderSkills, feedback: renderFeedback, setup: renderSetup,
+  };
+  // Live refreshes redraw the page; keep the caret where someone is typing.
+  const focused = document.activeElement?.closest?.('#main') ? document.activeElement : null;
+  const keep = focused?.id ? { id: focused.id, start: focused.selectionStart, end: focused.selectionEnd } : null;
+  (views[view] ?? renderBacklog)(main);
+  if (keep) {
+    const el = document.getElementById(keep.id);
+    if (el && el !== document.activeElement) {
+      el.focus();
+      try { if (keep.start != null) el.setSelectionRange(keep.start, keep.end); } catch {}
+    }
+  }
+  const errs = state.errors ?? [];
+  if (errs.length) {
+    main.insertAdjacentHTML('afterbegin', `<div class="notice">Couldn't parse ${errs.map((e) => `<code>${esc(e.file)}</code>`).join(', ')}, probably mid-write. Showing the last version that parsed.</div>`);
+  }
+}
+
+async function load() {
+  if (drag) { pendingReload = true; return; }
+  try {
+    const res = await fetch('/api/state');
+    if (!res.ok) throw new Error(`server answered ${res.status}`);
+    state = await res.json();
+    reviewCache.clear();
+    render();
+    renderDrawer();
+  } catch (err) {
+    document.getElementById('main').innerHTML = `<div class="notice">Couldn't read the workspace (${esc(err.message)}). Check that the Seahorse server is still running, then reload.</div>`;
+  }
+}
+
+function connect() {
+  const live = document.getElementById('live');
+  const text = document.getElementById('live-text');
+  const es = new EventSource('/events');
+  es.onopen = () => { live.className = 'live on'; text.textContent = 'Watching files'; load(); };
+  es.onmessage = () => { load(); text.textContent = `Updated ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`; };
+  es.onerror = () => { live.className = 'live off'; text.textContent = 'Server offline, retrying'; };
+}
+
+window.addEventListener('hashchange', render);
+connect();
+load();
+</script>
+</body>
+</html>

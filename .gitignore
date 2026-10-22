@@ -1,0 +1,6 @@
+node_modules/
+.DS_Store
+*.tmp
+*.log
+# Seahorse's own state, if you point Seahorse at this repo
+.seahorse/

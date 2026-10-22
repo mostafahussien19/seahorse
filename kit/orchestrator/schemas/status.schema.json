@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Status",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "project_id",
+    "overall_status",
+    "phase",
+    "spec_version",
+    "agents",
+    "blocked_by",
+    "updated_by",
+    "updated_at"
+  ],
+  "properties": {
+    "project_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "overall_status": {
+      "type": "string",
+      "enum": [
+        "planning",
+        "in_progress",
+        "blocked",
+        "review",
+        "done"
+      ]
+    },
+    "phase": {
+      "type": "string",
+      "enum": [
+        "task_defined",
+        "research",
+        "spec_ready",
+        "implementation",
+        "review",
+        "done"
+      ]
+    },
+    "spec_version": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "agents": {
+      "type": "object",
+      "description": "State of each agent on this project, keyed by role id (lead_agent, feature_strategist, any worker such as api_agent, reviewer_agent).",
+      "required": [
+        "lead_agent"
+      ],
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9_]*$"
+      },
+      "additionalProperties": {
+        "type": "string",
+        "enum": [
+          "pending",
+          "in_progress",
+          "done",
+          "skipped"
+        ]
+      }
+    },
+    "blocked_by": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "updated_by": {
+      "type": "string"
+    },
+    "updated_at": {
+      "type": "string"
+    }
+  }
+}

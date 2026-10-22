@@ -1,0 +1,14 @@
+{
+  "project_id": "{{project_id}}",
+  "overall_status": "planning",
+  "phase": "task_defined",
+  "spec_version": null,
+  "agents": {
+    "lead_agent": "in_progress",
+    "feature_strategist": "pending",
+    "reviewer_agent": "pending"
+  },
+  "blocked_by": [],
+  "updated_by": "lead_agent",
+  "updated_at": "{{updated_at}}"
+}
