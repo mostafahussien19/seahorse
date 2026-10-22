@@ -1,0 +1,14 @@
+[
+  {
+    "timestamp": "2026-10-20T09:00:00Z",
+    "actor": "lead_agent",
+    "event": "project_created",
+    "note": "Parsed the strategist handoff for feat-002. git tag before-refund-retries suggested."
+  },
+  {
+    "timestamp": "2026-10-20T12:00:00Z",
+    "actor": "lead_agent",
+    "event": "task_started",
+    "note": "api_agent started on task-001."
+  }
+]

@@ -922,14 +922,14 @@ async function loadReview(id) {
 // Topic comes from a lesson's own "topic" field when the lead sets one; otherwise it is
 // guessed from keywords. Title words count double because titles name the subject.
 const TOPICS = [
-  ['Auth and tokens', /\b(jwt\w*|tokens?|auth\w*|blacklist|secret|passwords?|bcrypt|login|requireauth)\b/gi],
-  ['Permissions and tenancy', /\b(permissions?|role|weight|companyid|tenants?|rbac|mass-assignment|reparent\w*|hierarch\w*|subordinate\w*)\b/gi],
-  ['Database and Sequelize', /\b(sequelize|findbypk|migrations?|composite|bulkdelete|noprimarykey|seeders?|postgres\w*|uuid|fk)\b/gi],
-  ['Express and errors', /\b(asynchandler|middleware|express|err\.status|500|try\/catch|always-200|error handler)\b/gi],
-  ['Modules and imports', /(\.mjs\b|\besm\b|\bes modules\b|require\(\)|\bimports?\b)/gi],
-  ['Frontend', /\b(next\.js|react|hooks?|components?|use client|frontend|forms?|interceptor|redirects?|app router)\b/gi],
-  ['Tests', /\b(tests?|fixtures?)\b/gi],
-  ['Process and specs', /\b(specs?|handoff|reviewer|pivot\w*|supersede\w*)\b/gi],
+  ['Security and access', /\b(auth\w*|jwt\w*|tokens?|secrets?|passwords?|bcrypt|login|sessions?|permissions?|roles?|tenants?|tenancy|rbac|scop\w*|accountid|companyid|mass-assignment|allowlist|injection|xss|csrf|signatures?|verif\w*)\b/gi],
+  ['APIs and integrations', /\b(api|apis|endpoints?|routes?|requests?|responses?|webhooks?|providers?|integrations?|http|rest|graphql|payloads?|contracts?)\b/gi],
+  ['Data and database', /\b(database|db|sql|quer(y|ies)|migrations?|schemas?|tables?|columns?|index(es)?|transactions?|orm|sequelize|prisma|postgres\w*|mysql|mongo\w*|uuid|seeders?|models?)\b/gi],
+  ['Errors and reliability', /\b(errors?|exceptions?|retr(y|ies|ied)|idempotent|idempotency|timeouts?|crash\w*|500|try\/catch|fail\w*|race|duplicate\w*|twice|backoff|jobs?|queues?)\b/gi],
+  ['Frontend and UI', /\b(ui|ux|react|vue|svelte|next\.js|hooks?|components?|pages?|forms?|modals?|toasts?|buttons?|css|tailwind|styles?|themes?|dark|loading|spinner|empty state|display\w*|render\w*|frontend|jsx|tsx)\b/gi],
+  ['Modules and build', /(\.mjs\b|\besm\b|\bes modules\b|require\(\)|\bimports?\b|\bbundl\w*|\bbuild\b|\bdependenc\w*|\bpackages?\b)/gi],
+  ['Tests', /\b(tests?|testing|fixtures?|mocks?|ci)\b/gi],
+  ['Process and specs', /\b(specs?|handoff|reviewer|pivot\w*|supersede\w*|scope creep)\b/gi],
 ];
 
 function topicOf(l) {

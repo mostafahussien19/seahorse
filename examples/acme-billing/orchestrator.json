@@ -1,0 +1,39 @@
+{
+  "version": "v1",
+  "updated_at": "2026-10-21T16:00:00Z",
+  "active_project": "refund-retries",
+  "projects": {
+    "account-scope-hotfix": {
+      "type": "hotfix",
+      "priority": "critical",
+      "created_at": "2026-10-06T10:00:00Z",
+      "completed_at": "2026-10-07T15:00:00Z",
+      "status": "done",
+      "note": "Invoice updates could change accountId. Fixed with a field allowlist."
+    },
+    "invoice-pdf-export": {
+      "type": "feature",
+      "priority": "high",
+      "created_at": "2026-10-12T10:00:00Z",
+      "completed_at": "2026-10-16T18:00:00Z",
+      "status": "done",
+      "note": "Download any invoice as a PDF from the invoice page."
+    },
+    "refund-retries": {
+      "type": "feature",
+      "priority": "high",
+      "created_at": "2026-10-20T10:00:00Z",
+      "status": "in_progress",
+      "note": "Failed refunds retry with backoff, and shop owners see refund status."
+    }
+  },
+  "rules": {
+    "project_creation_owner": "lead_agent",
+    "spec_owner": "lead_agent",
+    "status_owner": "lead_agent",
+    "worker_message_owner": "self_only",
+    "lesson_promotion_owner": "lead_agent",
+    "research_owner": "reviewer_agent",
+    "documentation_owner": "codebase_archaeologist"
+  }
+}

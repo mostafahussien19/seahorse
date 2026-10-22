@@ -1,0 +1,16 @@
+{
+  "project_id": "refund-retries",
+  "overall_status": "in_progress",
+  "phase": "implementation",
+  "spec_version": "1.0.0",
+  "agents": {
+    "lead_agent": "in_progress",
+    "feature_strategist": "done",
+    "api_agent": "in_progress",
+    "web_agent": "pending",
+    "reviewer_agent": "pending"
+  },
+  "blocked_by": [],
+  "updated_by": "lead_agent",
+  "updated_at": "2026-10-20T12:00:00Z"
+}

@@ -1,0 +1,15 @@
+{
+  "project_id": "refund-retries",
+  "version": "v1",
+  "status": "approved",
+  "decisions": [
+    "Retry up to 5 times with exponential backoff",
+    "Refund status is visible on the invoice page"
+  ],
+  "contracts": [
+    "GET /refunds/:id returns status: pending | retrying | succeeded | failed"
+  ],
+  "implementation_notes": [],
+  "updated_by": "lead_agent",
+  "updated_at": "2026-10-20T10:00:00Z"
+}

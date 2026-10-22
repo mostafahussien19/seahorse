@@ -1,0 +1,19 @@
+{
+  "task_id": "task-fix-001",
+  "project_id": "account-scope-hotfix",
+  "title": "Allowlist fields in invoice updates",
+  "goal": "Stop PATCH /invoices/:id from changing accountId or id.",
+  "assigned_to": "api_agent",
+  "scope": {
+    "in": [],
+    "out": []
+  },
+  "acceptance_criteria": [
+    "accountId and id in the body are ignored",
+    "Test covers a cross-account update attempt"
+  ],
+  "status": "done",
+  "dependencies": [],
+  "created_at": "2026-10-06T10:00:00Z",
+  "updated_at": "2026-10-06T10:00:00Z"
+}

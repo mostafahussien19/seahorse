@@ -1,0 +1,32 @@
+[
+  {
+    "project_id": "invoice-pdf-export",
+    "agent_id": "api_agent",
+    "role": "api_agent",
+    "status": "done",
+    "approach_summary": "[task-001] Added GET /invoices/:id/pdf, scoped by accountId. Reused the receipts template. Webhook retries showed the receipts job is not idempotent (see surprises).",
+    "reads": [
+      "orchestrator/memory/core.md",
+      "orchestrator/memory/lessons.json"
+    ],
+    "writes": [
+      "server/src/invoices/pdf.js",
+      "server/src/routes.js"
+    ],
+    "files_touched": [
+      "server/src/invoices/pdf.js",
+      "server/src/routes.js"
+    ],
+    "surprises": [
+      "The receipts job sends a second email when the provider retries payment.succeeded."
+    ],
+    "assumptions": [],
+    "findings": [],
+    "blockers": [],
+    "handoff_to": [
+      "lead_agent"
+    ],
+    "user_feedback": [],
+    "updated_at": "2026-10-14T12:00:00Z"
+  }
+]

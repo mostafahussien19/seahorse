@@ -1,0 +1,19 @@
+{
+  "patterns": [
+    {
+      "id": "P001",
+      "rule": "ESM everywhere, with .js extensions in imports (server/src/app.js)",
+      "source": "onboarding"
+    },
+    {
+      "id": "P002",
+      "rule": "Money is stored and passed as integer cents, never floats (server/src/money.js)",
+      "source": "onboarding"
+    },
+    {
+      "id": "P003",
+      "rule": "Every data-fetching component handles loading, error and empty states (web/src/components/InvoiceList.jsx)",
+      "source": "onboarding"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "lessons": [
+    {
+      "id": "L001",
+      "severity": "critical",
+      "title": "Never take accountId from the request body",
+      "description": "The first version of PATCH /invoices/:id spread req.body into the update, so a caller could move an invoice to another account.",
+      "fix": "Read accountId only from the session. Allowlist updatable fields in every controller."
+    },
+    {
+      "id": "L002",
+      "severity": "high",
+      "title": "Webhook handlers must be idempotent",
+      "description": "The provider retries webhooks. A retried payment.succeeded event marked an invoice paid twice and sent two receipts.",
+      "fix": "Store the provider event id with a unique constraint and skip events already processed."
+    },
+    {
+      "id": "L003",
+      "severity": "medium",
+      "title": "Format money once, at the edge",
+      "description": "InvoiceTotal.jsx divided cents by 100 and the API also sent dollars, so totals showed 100x too small.",
+      "fix": "The API always returns integer cents. Only formatMoney() in web/src/lib/money.js converts for display."
+    },
+    {
+      "id": "L004",
+      "severity": "medium",
+      "title": "Every list needs an empty state",
+      "description": "New shops saw a blank page on Invoices because the list rendered nothing for zero rows.",
+      "fix": "Render an empty state that says what to do next (Create your first invoice)."
+    },
+    {
+      "id": "L005",
+      "severity": "low",
+      "title": "Migrations live in db/migrations, not server/",
+      "description": "A migration added under server/src/migrations was never run in CI.",
+      "fix": "Put every migration in db/migrations/ with a timestamp prefix."
+    }
+  ]
+}

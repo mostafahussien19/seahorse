@@ -1,0 +1,19 @@
+{
+  "task_id": "task-001",
+  "project_id": "invoice-pdf-export",
+  "title": "PDF endpoint",
+  "goal": "GET /invoices/:id/pdf renders the invoice.",
+  "assigned_to": "api_agent",
+  "scope": {
+    "in": [],
+    "out": []
+  },
+  "acceptance_criteria": [
+    "Returns a PDF for the caller's own invoices only",
+    "Totals match the invoice page"
+  ],
+  "status": "done",
+  "dependencies": [],
+  "created_at": "2026-10-12T10:00:00Z",
+  "updated_at": "2026-10-12T10:00:00Z"
+}

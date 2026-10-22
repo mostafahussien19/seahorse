@@ -1,0 +1,20 @@
+[
+  {
+    "timestamp": "2026-10-06T09:00:00Z",
+    "actor": "lead_agent",
+    "event": "project_created",
+    "note": "Hotfix protocol for bug-001. Created task-fix-001 for api_agent."
+  },
+  {
+    "timestamp": "2026-10-06T18:00:00Z",
+    "actor": "lead_agent",
+    "event": "changes_requested",
+    "note": "Reviewer found the same pattern in customers/update.js. Sent back to api_agent."
+  },
+  {
+    "timestamp": "2026-10-07T15:00:00Z",
+    "actor": "lead_agent",
+    "event": "project_closed",
+    "note": "Reviewer approved. Lesson L001 promoted. bug-001 resolved."
+  }
+]

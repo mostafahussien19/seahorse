@@ -1,0 +1,14 @@
+{
+  "project_id": "invoice-pdf-export",
+  "version": "v1",
+  "status": "approved",
+  "decisions": [
+    "Render PDFs on the server with the invoice template"
+  ],
+  "contracts": [
+    "GET /invoices/:id/pdf returns application/pdf"
+  ],
+  "implementation_notes": [],
+  "updated_by": "lead_agent",
+  "updated_at": "2026-10-12T10:00:00Z"
+}

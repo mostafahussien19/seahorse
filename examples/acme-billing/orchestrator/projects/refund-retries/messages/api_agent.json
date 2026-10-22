@@ -1,0 +1,32 @@
+[
+  {
+    "project_id": "refund-retries",
+    "agent_id": "api_agent",
+    "role": "api_agent",
+    "status": "done",
+    "approach_summary": "[task-001] Added the refund retry job: 5 attempts with exponential backoff, attempts stored in refund_attempts, idempotent on provider event id. GET /refunds/:id returns status and attempts.",
+    "reads": [
+      "orchestrator/memory/core.md",
+      "orchestrator/memory/lessons.json"
+    ],
+    "writes": [
+      "server/src/jobs/refundRetry.js",
+      "db/migrations/20261021_refund_attempts.sql",
+      "server/src/refunds/get.js"
+    ],
+    "files_touched": [
+      "server/src/jobs/refundRetry.js",
+      "db/migrations/20261021_refund_attempts.sql",
+      "server/src/refunds/get.js"
+    ],
+    "surprises": [],
+    "assumptions": [],
+    "findings": [],
+    "blockers": [],
+    "handoff_to": [
+      "lead_agent"
+    ],
+    "user_feedback": [],
+    "updated_at": "2026-10-21T15:00:00Z"
+  }
+]

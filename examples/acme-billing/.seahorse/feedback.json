@@ -1,0 +1,16 @@
+[
+  {
+    "id": "f1",
+    "when": "2026-10-18T10:00:00Z",
+    "agent": "web_agent",
+    "project": "invoice-pdf-export",
+    "text": "It opened a modal dialog for a simple error. Use a toast."
+  },
+  {
+    "id": "f2",
+    "when": "2026-10-19T16:00:00Z",
+    "agent": "web_agent",
+    "project": null,
+    "text": "Another blocking modal for an error message. Errors go in a toast."
+  }
+]

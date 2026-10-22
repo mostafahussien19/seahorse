@@ -3,4 +3,4 @@ node_modules/
 *.tmp
 *.log
 # Seahorse's own state, if you point Seahorse at this repo
-.seahorse/
+/.seahorse/

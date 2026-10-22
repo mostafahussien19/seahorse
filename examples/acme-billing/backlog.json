@@ -1,0 +1,111 @@
+{
+  "version": "v1",
+  "updated_at": "2026-10-21T16:00:00Z",
+  "items": [
+    {
+      "id": "bug-001",
+      "title": "Invoice update accepts accountId from the request body",
+      "description": "PATCH /invoices/:id spreads req.body. See L001.",
+      "priority": "critical",
+      "status": "done",
+      "assigned_to": "api_agent",
+      "labels": [
+        "security",
+        "api"
+      ],
+      "resolved_in_project": "account-scope-hotfix"
+    },
+    {
+      "id": "feat-001",
+      "title": "Download an invoice as PDF",
+      "description": "Shop owners want to email a PDF to customers.",
+      "priority": "high",
+      "status": "done",
+      "assigned_to": "feature_strategist",
+      "labels": [
+        "invoices"
+      ],
+      "resolved_in_project": "invoice-pdf-export"
+    },
+    {
+      "id": "feat-002",
+      "title": "Retry failed refunds automatically",
+      "description": "Refunds that fail at the provider are lost. Retry with backoff and show status.",
+      "priority": "high",
+      "status": "in_progress",
+      "assigned_to": "lead_agent",
+      "labels": [
+        "refunds",
+        "jobs"
+      ]
+    },
+    {
+      "id": "bug-002",
+      "title": "Receipt email sent twice on webhook retry",
+      "description": "Same root cause as L002 in the receipts job.",
+      "priority": "high",
+      "status": "pending",
+      "assigned_to": "api_agent",
+      "labels": [
+        "webhooks",
+        "email"
+      ]
+    },
+    {
+      "id": "bug-003",
+      "title": "Invoice totals off by 100x in the CSV export",
+      "description": "The export divides cents again. Breaks L003.",
+      "priority": "medium",
+      "status": "pending",
+      "assigned_to": "web_agent",
+      "labels": [
+        "money",
+        "export"
+      ]
+    },
+    {
+      "id": "cleanup-001",
+      "title": "Settings page has no empty state for payment methods",
+      "description": "Blank card when no payment method is saved. See L004.",
+      "priority": "medium",
+      "status": "pending",
+      "assigned_to": "web_agent",
+      "labels": [
+        "ux"
+      ]
+    },
+    {
+      "id": "idea-001",
+      "title": "Partial refunds",
+      "description": "Let shop owners refund part of an invoice.",
+      "priority": "medium",
+      "status": "pending",
+      "assigned_to": "feature_strategist",
+      "labels": [
+        "refunds"
+      ]
+    },
+    {
+      "id": "cleanup-002",
+      "title": "Move legacy migrations out of server/src",
+      "description": "Three old migrations still live under server/src/migrations.",
+      "priority": "low",
+      "status": "pending",
+      "assigned_to": "api_agent",
+      "labels": [
+        "db"
+      ]
+    },
+    {
+      "id": "idea-002",
+      "title": "Dark mode for the web app",
+      "description": "Several shops asked for it.",
+      "priority": "low",
+      "status": "pending",
+      "assigned_to": "feature_strategist",
+      "labels": [
+        "ux"
+      ]
+    }
+  ]
+}

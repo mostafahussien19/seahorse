@@ -1,0 +1,16 @@
+{
+  "project_id": "invoice-pdf-export",
+  "overall_status": "done",
+  "phase": "done",
+  "spec_version": "1.0.0",
+  "agents": {
+    "lead_agent": "done",
+    "feature_strategist": "done",
+    "api_agent": "done",
+    "web_agent": "done",
+    "reviewer_agent": "done"
+  },
+  "blocked_by": [],
+  "updated_by": "lead_agent",
+  "updated_at": "2026-10-16T18:00:00Z"
+}

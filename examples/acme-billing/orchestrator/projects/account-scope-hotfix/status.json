@@ -1,0 +1,16 @@
+{
+  "project_id": "account-scope-hotfix",
+  "overall_status": "done",
+  "phase": "done",
+  "spec_version": "1.0.0",
+  "agents": {
+    "lead_agent": "done",
+    "feature_strategist": "skipped",
+    "api_agent": "done",
+    "web_agent": "skipped",
+    "reviewer_agent": "done"
+  },
+  "blocked_by": [],
+  "updated_by": "lead_agent",
+  "updated_at": "2026-10-07T15:00:00Z"
+}

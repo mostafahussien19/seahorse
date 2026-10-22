@@ -1,0 +1,18 @@
+{
+  "task_id": "{{task_id}}",
+  "project_id": "{{project_id}}",
+  "title": "{{title}}",
+  "goal": "{{goal}}",
+  "assigned_to": "{{assigned_to}}",
+  "scope": {
+    "in": [],
+    "out": []
+  },
+  "acceptance_criteria": [],
+  "status": "pending",
+  "dependencies": [],
+  "review_notes": null,
+  "completed_at": null,
+  "created_at": "{{created_at}}",
+  "updated_at": "{{updated_at}}"
+}

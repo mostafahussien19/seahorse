@@ -1,0 +1,20 @@
+{
+  "task_id": "task-001",
+  "project_id": "refund-retries",
+  "title": "Refund retry job",
+  "goal": "Retry failed refunds with backoff and record each attempt.",
+  "assigned_to": "api_agent",
+  "scope": {
+    "in": [],
+    "out": []
+  },
+  "acceptance_criteria": [
+    "Up to 5 attempts with exponential backoff",
+    "Each attempt is stored with its provider error",
+    "Idempotent on provider event id (L002)"
+  ],
+  "status": "in_progress",
+  "dependencies": [],
+  "created_at": "2026-10-20T10:00:00Z",
+  "updated_at": "2026-10-20T10:00:00Z"
+}

@@ -1,0 +1,12 @@
+{
+  "project_id": "account-scope-hotfix",
+  "version": "v1",
+  "status": "approved",
+  "decisions": [
+    "Allowlist updatable invoice fields"
+  ],
+  "contracts": [],
+  "implementation_notes": [],
+  "updated_by": "lead_agent",
+  "updated_at": "2026-10-06T10:00:00Z"
+}

@@ -1,0 +1,20 @@
+[
+  {
+    "timestamp": "2026-10-12T09:00:00Z",
+    "actor": "lead_agent",
+    "event": "project_created",
+    "note": "Parsed the strategist handoff for feat-001. Three tasks."
+  },
+  {
+    "timestamp": "2026-10-14T13:00:00Z",
+    "actor": "lead_agent",
+    "event": "task_needs_review",
+    "note": "api_agent finished task-001. Lesson L002 promoted from its surprises. Logged bug-002."
+  },
+  {
+    "timestamp": "2026-10-16T18:00:00Z",
+    "actor": "lead_agent",
+    "event": "project_closed",
+    "note": "Reviewer approved. feat-001 resolved."
+  }
+]

@@ -1,0 +1,21 @@
+{
+  "task_id": "task-002",
+  "project_id": "invoice-pdf-export",
+  "title": "Download button",
+  "goal": "Add a Download PDF button to the invoice page.",
+  "assigned_to": "web_agent",
+  "scope": {
+    "in": [],
+    "out": []
+  },
+  "acceptance_criteria": [
+    "Button shows a spinner while the PDF downloads",
+    "Errors show a message, not a blank tab"
+  ],
+  "status": "done",
+  "dependencies": [
+    "task-001"
+  ],
+  "created_at": "2026-10-12T10:00:00Z",
+  "updated_at": "2026-10-12T10:00:00Z"
+}

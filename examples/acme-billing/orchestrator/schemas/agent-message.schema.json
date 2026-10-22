@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Agent Message",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "project_id",
+    "agent_id",
+    "role",
+    "status",
+    "approach_summary",
+    "reads",
+    "writes",
+    "files_touched",
+    "surprises",
+    "assumptions",
+    "findings",
+    "blockers",
+    "handoff_to",
+    "updated_at"
+  ],
+  "properties": {
+    "project_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "agent_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "role": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "in_progress",
+        "blocked",
+        "done"
+      ]
+    },
+    "approach_summary": {
+      "type": "string",
+      "description": "One sentence explaining the technical approach taken to solve the task."
+    },
+    "reads": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "writes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "files_touched": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "surprises": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Unexpected behaviors, API quirks, or things that didn't work as initially assumed. Empty array if none."
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "handoff_to": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "updated_at": {
+      "type": "string"
+    },
+    "user_feedback": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Corrections or rejections the user gave during this work, one short string each, in the user's words. Seahorse watches these for repeats."
+    }
+  }
+}

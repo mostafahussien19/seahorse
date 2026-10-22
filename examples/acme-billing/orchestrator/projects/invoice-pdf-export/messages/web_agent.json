@@ -1,0 +1,32 @@
+[
+  {
+    "project_id": "invoice-pdf-export",
+    "agent_id": "web_agent",
+    "role": "web_agent",
+    "status": "done",
+    "approach_summary": "[task-002] Added the Download PDF button with loading and error states.",
+    "reads": [
+      "orchestrator/memory/core.md",
+      "orchestrator/memory/lessons.json"
+    ],
+    "writes": [
+      "web/src/pages/Invoice.jsx",
+      "web/src/lib/download.js"
+    ],
+    "files_touched": [
+      "web/src/pages/Invoice.jsx",
+      "web/src/lib/download.js"
+    ],
+    "surprises": [],
+    "assumptions": [],
+    "findings": [],
+    "blockers": [],
+    "handoff_to": [
+      "lead_agent"
+    ],
+    "user_feedback": [
+      "Use the toast for errors, not a blocking modal dialog"
+    ],
+    "updated_at": "2026-10-15T16:00:00Z"
+  }
+]

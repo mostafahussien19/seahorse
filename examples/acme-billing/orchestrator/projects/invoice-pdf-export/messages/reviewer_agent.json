@@ -1,0 +1,24 @@
+[
+  {
+    "project_id": "invoice-pdf-export",
+    "agent_id": "reviewer_agent",
+    "role": "reviewer_agent",
+    "status": "done",
+    "approach_summary": "verdict: approved. [task-001] [task-002] All criteria pass.",
+    "reads": [
+      "orchestrator/memory/core.md",
+      "orchestrator/memory/lessons.json"
+    ],
+    "writes": [],
+    "files_touched": [],
+    "surprises": [],
+    "assumptions": [],
+    "findings": [],
+    "blockers": [],
+    "handoff_to": [
+      "lead_agent"
+    ],
+    "user_feedback": [],
+    "updated_at": "2026-10-16T15:00:00Z"
+  }
+]

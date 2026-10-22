@@ -1,0 +1,58 @@
+[
+  {
+    "project_id": "account-scope-hotfix",
+    "agent_id": "api_agent",
+    "role": "api_agent",
+    "status": "done",
+    "approach_summary": "[task-fix-001] Replaced the body spread with an allowlist of title, due_date, line_items and notes. accountId now comes only from the session.",
+    "reads": [
+      "orchestrator/memory/core.md",
+      "orchestrator/memory/lessons.json"
+    ],
+    "writes": [
+      "server/src/invoices/update.js",
+      "server/test/invoices.update.test.js"
+    ],
+    "files_touched": [
+      "server/src/invoices/update.js",
+      "server/test/invoices.update.test.js"
+    ],
+    "surprises": [],
+    "assumptions": [],
+    "findings": [],
+    "blockers": [],
+    "handoff_to": [
+      "lead_agent"
+    ],
+    "user_feedback": [],
+    "updated_at": "2026-10-06T14:00:00Z"
+  },
+  {
+    "project_id": "account-scope-hotfix",
+    "agent_id": "api_agent",
+    "role": "api_agent",
+    "status": "done",
+    "approach_summary": "[task-fix-001] Applied the same allowlist to PATCH /customers/:id as the reviewer asked.",
+    "reads": [
+      "orchestrator/memory/core.md",
+      "orchestrator/memory/lessons.json"
+    ],
+    "writes": [
+      "server/src/customers/update.js"
+    ],
+    "files_touched": [
+      "server/src/customers/update.js"
+    ],
+    "surprises": [],
+    "assumptions": [],
+    "findings": [],
+    "blockers": [],
+    "handoff_to": [
+      "lead_agent"
+    ],
+    "user_feedback": [
+      "Check the other controllers for the same pattern before saying done"
+    ],
+    "updated_at": "2026-10-07T11:00:00Z"
+  }
+]
