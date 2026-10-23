@@ -2,21 +2,25 @@
 
 # Seahorse
 
-**Run a team of Claude Code agents from one board, and let it remember what went wrong.**
+**A local workflow board and persistent memory for Claude Code teams.**
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-1f3d63.svg)](LICENSE)
 [![Node 20+](https://img.shields.io/badge/node-%3E%3D20-1f3d63.svg)](https://nodejs.org)
 [![Dependencies: none](https://img.shields.io/badge/dependencies-none-1f3d63.svg)](package.json)
 
-<img src="docs/screenshots/workflow.png" alt="Seahorse Workflow page: the API agent finished, and Seahorse suggests sending its report to the Lead" width="900">
+<img src="docs/screenshots/workflow.png" alt="Seahorse with grouped sidebar navigation, project totals, and an API completion report awaiting the Lead" width="900">
 
 </div>
 
-Seahorse turns your repository into a small team of [Claude Code](https://docs.claude.com/en/docs/claude-code) agents (a lead, a strategist, one worker per area of your code, a reviewer and a docs keeper), each allowed to write only its own files. It then gives you one local page to run that team: a backlog you drag onto agents, a workflow view that says who to start next, the lessons the team has learned, plugins, and a memory of what you keep correcting.
+Coordinate [Claude Code](https://docs.claude.com/en/docs/claude-code) agents, review their handoffs, and turn repeated corrections into lessons for future tasks. Seahorse runs locally, uses files you can inspect and commit, and has no npm dependencies.
 
-The name comes from the *hippocampus*, Greek for seahorse: the part of the brain that turns short-lived experience into lasting memory. Chat with an agent is forgotten. What it writes to files is kept, shown and used to make the next run better.
+- **Know what to do next.** Workflow brings the next handoff, task totals, and recent activity together.
+- **Keep corrections useful.** Feedback groups recurring complaints; accepted proposals can become lessons, plugins, or new agents.
+- **Find the context.** Search backlog items, project tasks, projects, lessons, and agents with Command/Control K.
 
-**Contents:** [Quick start](#quick-start) · [Where things live](#where-things-live) · [How it works](#how-it-works) · [Tour](#tour) · [Configuration](#configuration) · [Safety](#safety-and-privacy) · [FAQ](#faq) · [Development](#development)
+The name comes from the *hippocampus*, Greek for seahorse: the part of the brain that turns short-lived experience into lasting memory.
+
+**Contents:** [Quick start](#quick-start) · [How it works](#how-it-works) · [Tour](#tour) · [Keyboard shortcuts](#keyboard-shortcuts) · [Configuration](#configuration) · [Safety and limitations](#safety-and-limitations) · [FAQ](#faq) · [Development](#development)
 
 ## Quick start
 
@@ -29,16 +33,16 @@ npx github:mostafahussien19/seahorse
 
 Open **http://localhost:4600**. A repository without an agent team opens on **Setup**:
 
-1. **Discover.** Seahorse starts `/seahorse-onboard`, a read-only Claude agent that studies your repo and writes a proposal: stack, modules, conventions, commands, the rules that must never break, and issues it can point to in the code.
+1. **Discover.** Seahorse starts `/seahorse-onboard`, a Claude agent instructed to inspect your code without changing it and write an onboarding proposal: stack, modules, conventions, commands, the rules that must never break, and issues it can point to in the code.
 2. **Review** the proposed worker agents and exactly which paths each may write. Untick or edit anything.
 3. **Pick tools** from your Claude Code plugin marketplaces. Only plugins that exist there are offered.
 4. **Create.** Seahorse writes the agents and the team's memory into your repo, then installs the plugins you kept.
 
-Then open the Backlog, drag an item onto the Lead, and the team starts working.
+Configured workspaces open on **Workflow**. To start new work, open **Backlog** and send an item to the Lead, using the buttons in its details or dragging it onto an agent. Each handoff is an action you launch yourself.
 
 ### Try it without your own repo
 
-The repo ships a fictional project that's already set up, so you can see everything before running Setup:
+The fictional Acme Billing workspace is already set up. You can browse its workflow, projects, lessons, and feedback without starting an agent:
 
 ```bash
 git clone https://github.com/mostafahussien19/seahorse.git
@@ -46,137 +50,103 @@ cd seahorse
 node server.mjs examples/acme-billing
 ```
 
-## Where things live
-
-Seahorse itself is just a server and a page. **The agents and their memory are created inside your project** when you run Setup, so you won't find them in this repo except in the example.
-
-<table>
-<tr><th>This repo (the tool)</th><th>Your project, after Setup</th></tr>
-<tr><td valign="top">
-
-```text
-seahorse/
-├── server.mjs       the local server
-├── public/          the board (one HTML page)
-├── lib/             generators and feedback logic
-├── kit/             starter files copied into
-│   ├── agents/        your project by Setup
-│   ├── commands/
-│   └── orchestrator/
-└── examples/
-    └── acme-billing/  a finished example
-```
-
-</td><td valign="top">
-
-```text
-your-app/
-├── .claude/commands/        the agents
-│   ├── acme-lead-agent.md
-│   ├── acme-api-agent.md
-│   └── …
-├── orchestrator.json        project list
-├── backlog.json             bugs, ideas, tasks
-├── orchestrator/
-│   ├── memory/              the team's memory
-│   │   ├── core.md            rules + permissions
-│   │   ├── domain_context.md  modules, conventions
-│   │   ├── lessons.json       mistakes learned
-│   │   └── patterns.json      code style
-│   ├── projects/<id>/       one folder per project
-│   ├── research/            review reports
-│   ├── schemas/  templates/
-└── .seahorse/               Seahorse's own state
-```
-
-</td></tr>
-</table>
-
-| File | Written by | What it holds |
-|---|---|---|
-| `.claude/commands/*.md` | Setup | One file per agent, run as a slash command such as `/acme-lead-agent` |
-| `orchestrator/memory/core.md` | Setup, then **only you** | The rules every agent follows and the permission matrix |
-| `orchestrator/memory/domain_context.md` | Setup, then you | What discovery learned: modules, conventions, constraints, commands |
-| `orchestrator/memory/lessons.json` | The lead | Mistakes worth never repeating, with the fix |
-| `orchestrator/memory/patterns.json` | The archaeologist | Code style rules |
-| `orchestrator.json`, `backlog.json` | The lead | Every project and the backlog |
-| `orchestrator/projects/<id>/` | The lead and the agents | Status, spec, tasks, an event log, and one message file per agent |
-| `orchestrator/research/review-<id>.md` | The reviewer | Review reports |
-| `.seahorse/` | Seahorse | Onboarding proposal, feedback you logged, reminders, skill assignments |
-
-Setup never overwrites a file that exists, and it leaves `orchestrator/projects/` empty: the lead creates a folder when it starts a project.
+Open **http://localhost:4600**. The API agent has reported completion, so Workflow offers to send its report to the Lead. Running agents from the example still uses your Claude Code account.
 
 ## How it works
 
-One rule holds the team together: **if it isn't in a JSON file, it didn't happen.** Agents never talk to each other. Each appends to its own message file, and the lead reads those files and decides what happens next. Seahorse watches the files and shows you the next step.
+Agents coordinate through files in your repository. Workers append reports to their own message files; the Lead reads those reports, updates project state, and routes the next task. Seahorse watches the files and presents the next handoff for you to launch.
 
 ```mermaid
 flowchart LR
-    B[Backlog item] -->|you drag it| L[Lead]
-    L -->|creates project + tasks| W[Workers]
-    W -->|message file: done| S{{Seahorse}}
-    S -->|"you click: send report"| L
-    L -->|all tasks done| R[Reviewer]
-    R -->|approved| L
-    L -->|closes project, promotes lessons| M[(Memory)]
-    M -.->|read at every start| W
+    B[Backlog] --> L[Lead]
+    L --> W[Workers]
+    W -->|completion report| H[You relay to Lead]
+    H --> R[Review]
+    R --> M[Lessons and memory]
+    M -.->|read on the next task| W
 ```
 
-| Agent | Job | May write |
-|---|---|---|
-| Lead | Turns ideas and bugs into projects and tasks, routes work, promotes lessons | Project state, backlog, `lessons.json` |
-| Strategist | Scopes a feature idea into a handoff block | Nothing |
-| Workers | Build their tasks, one agent per area (for example `api_agent`, `web_agent`) | Their code paths and their own message file |
-| Reviewer | Checks the work against the task and the project's rules | Review reports and its message file |
-| Archaeologist | Keeps `CLAUDE.md` and `ARCHITECTURE.md` files true to the code | Docs and `patterns.json` |
+The generated team includes a Lead, Strategist, workers for your codebase, Reviewer, and Archaeologist for documentation. Their instructions define who owns each file and require review before a project closes.
 
-A project moves through `task_defined → research → spec_ready → implementation → review → done`. Only the lead changes the phase, and nothing closes without an approved review.
+**The state lives in your repo:** `backlog.json`, `orchestrator.json`, and `orchestrator/` hold work and memory; `.claude/commands/` holds agent commands; `.seahorse/` holds board preferences, feedback, and proposals. Setup keeps existing files.
+
+See [Files and workflow](docs/ARCHITECTURE.md) for the directory layout, ownership table, agent roles, and project phases.
 
 ## Tour
 
 *Screenshots use the fictional [Acme Billing example](examples/acme-billing).*
 
-### Backlog
+### Workflow and backlog
 
-Drag an item onto the Lead to turn it into a project, or onto the Strategist to scope it. Tasks in the active project go to the agent they're assigned to. Each drop opens that agent in a new terminal with the right prompt.
+Workflow is the starting point for a configured workspace. **Awaiting Lead** distinguishes a completion report from a task whose status the Lead has updated. Last-report timestamps show how fresh the recorded state is.
 
-<img src="docs/screenshots/backlog.png" alt="Backlog with agent drop zones, the active project's tasks, and items by status" width="900">
+On Backlog, expand **Hand off to an agent** or **Active project tasks** when needed. Dragging a card reveals agent targets automatically. On touch screens or with a keyboard, open the card and use its action buttons.
 
-### Setup
+<img src="docs/screenshots/backlog.png" alt="Backlog with compact expandable handoff controls, filters, and status columns" width="900">
 
-Discovery proposes the team. You decide what each agent may write before anything is created.
+### Search
 
-<img src="docs/screenshots/setup.png" alt="Setup step 2: proposed api and web agents with editable write paths" width="900">
+Use the Search button or **Command/Control K** to find work and memory across the workspace. Open a result to inspect its details.
 
-### Agents and projects
+<img src="docs/screenshots/search.png" alt="Workspace search showing backlog, project, and task results for refund" width="900">
 
-Every agent with what it may write, its skills, pinned lessons and recent work. Every project with its tasks, timeline, agent messages and review report.
+### Lessons and feedback
 
-<img src="docs/screenshots/agents.png" alt="Agents page with six agents and their write permissions" width="900">
+Lessons link past mistakes to their source projects and related open backlog items. **Enforce** asks the Lead to find remaining violations, **Retire** asks it to verify a lesson is no longer needed, and **Remind** pins a lesson into an agent's launch prompt.
 
-<img src="docs/screenshots/project.png" alt="A closed project's details: tasks, timeline and agent messages" width="900">
+Feedback combines your logged corrections, agent-recorded feedback, and reviewer findings. Repeated complaints can be sent to Claude for a proposed lesson, plugin, or agent. Applying a proposal requires your action.
 
-### Lessons
+<img src="docs/screenshots/feedback.png" alt="Repeated feedback about error modals with a proposed lesson and its evidence" width="900">
 
-Mistakes the lead recorded, grouped by topic, each linked to the project it came from and to open backlog items that still break it. **Enforce** sends the lead to search the code for the mistake, **Retire** has it confirm the mistake can't happen any more, and **Remind** pins the lesson into an agent's prompt.
+<details>
+<summary>See lessons, agents, projects, setup, and skills</summary>
 
-<img src="docs/screenshots/lessons.png" alt="Lessons grouped by topic, with open backlog items and reminders" width="900">
+**Lessons** group the team's recorded mistakes by topic.
 
-### Feedback
+<img src="docs/screenshots/lessons.png" alt="Lessons grouped by topic, with reminders and related open backlog items" width="900">
 
-Seahorse notices what you keep correcting. Agents record your corrections, you can log a dislike yourself, and reviewer rejections count against the agent whose files they name. When the same complaint comes back, **Ask Claude for a fix** proposes a lesson, a plugin, or a new agent. Nothing changes until you accept one.
+**Agents** show write instructions, assigned skills, pinned lessons, and recent activity.
 
-<img src="docs/screenshots/feedback.png" alt="A repeated complaint about modals with a proposed lesson" width="900">
+<img src="docs/screenshots/agents.png" alt="Six agents with their instructed write paths and controls to start them or inspect details" width="900">
 
-### Skills
+**Project details** collect tasks, timeline, agent messages, and review reports.
 
-Every plugin in your Claude Code marketplaces. Install one into the project, then tick which agents should use its skills.
+<img src="docs/screenshots/project.png" alt="Completed invoice PDF export project in the details panel" width="900">
 
-<img src="docs/screenshots/skills.png" alt="Plugin catalog sorted by installs" width="900">
+**Setup** starts with discovery. Review the proposal and the agents' write paths before creating the team. This screenshot shows the example workspace before discovery has been run.
 
-Light and dark themes follow your system, with a switch in the header.
+<img src="docs/screenshots/setup.png" alt="Setup page explaining discovery and the review steps before creating an agent team" width="900">
 
-<img src="docs/screenshots/workflow-dark.png" alt="Workflow page in dark mode" width="900">
+**Skills** lists plugins from your configured Claude Code marketplaces. Install one into the project, then assign it to the agents that should use it. Catalog contents depend on your marketplaces; this capture shows the catalog available when the screenshot was taken.
+
+<img src="docs/screenshots/skills.png" alt="Claude Code plugin catalog with search, filters, and install controls" width="900">
+
+</details>
+
+### Themes and mobile
+
+Light and dark themes follow your system, with a switch in the sidebar. On phones, navigation folds behind **Menu**.
+
+<details>
+<summary>See dark mode and the phone layout</summary>
+
+<img src="docs/screenshots/workflow-dark.png" alt="Workflow in the dark lamplight theme" width="900">
+
+<img src="docs/screenshots/workflow-mobile.png" alt="Phone layout with a collapsed menu and the next handoff action" width="390">
+
+</details>
+
+## Keyboard shortcuts
+
+| Shortcut | Action |
+|---|---|
+| Command/Control K | Open or close workspace search |
+| `/` | Focus the current view's search, or open workspace search; ignored while typing in a field |
+| Escape | Close the details panel or expanded mobile menu |
+| Tab / Shift Tab | Move through controls; focus stays inside an open details panel |
+| Enter / Space | Open a focused work card |
+
+Live updates preserve form text, focus, expanded reports, and your reading position in a details panel. If a refresh fails, the last loaded view stays visible with a **Try again** action.
 
 ## Configuration
 
@@ -187,18 +157,19 @@ Light and dark themes follow your system, with a switch in the header.
 | `BOARD_NO_TERMINAL=1` | off | Show agent commands to copy instead of opening Terminal |
 | `WORKSPACE` | | Same as the first argument |
 
-## Safety and privacy
+## Safety and limitations
 
-- **Local only.** The board listens on `127.0.0.1`. Seahorse sends nothing anywhere; the only network use comes from the `claude` CLI when you install a plugin.
-- **No surprise actions.** Every request that changes anything needs a token embedded in the page at startup and a `localhost` address, so other websites you have open can't trigger it.
-- **No shell injection.** Agent prompts are built from fixed text plus ids that must match `[a-z0-9-]` and exist in your files. Nothing you type in the browser reaches a shell.
-- **The agents own their files.** Seahorse doesn't edit `orchestrator.json`, `backlog.json`, project files or `lessons.json`; it only creates them during Setup. It changes existing agent files and the message schema only when you click **Add the feedback rule**.
-- **You stay in the loop.** Seahorse never starts an agent on its own. Every handoff is a click.
+- **Local board.** The server listens on `127.0.0.1`. It does not call an AI API directly. Launched Claude Code sessions and plugin operations can access the network under your Claude Code configuration and account.
+- **Manual handoffs.** Seahorse does not start agents automatically. One-click launching opens macOS Terminal; Linux and Windows show a command to copy instead.
+- **Recorded state.** Status comes from repository files, not live process monitoring. “Watching files” describes the board's connection; it does not confirm that an agent is running.
+- **Instruction-based permissions.** Agent command files and the permission matrix tell agents where they may write. These are instructions, not a filesystem sandbox enforced by Seahorse.
+- **Protected board actions.** Mutating API routes check the loopback host, a page token, and JSON content type. Launch commands use shell quoting and validate task and project IDs.
+- **File ownership.** After Setup, agents maintain backlog, project state, and lessons. The board manages its own settings, agent creation, and explicit feedback-rule updates. Setup keeps files that already exist.
 
 ## FAQ
 
 **Does Seahorse cost anything or need an API key?**
-No. Seahorse doesn't call any AI service. Agents run in your own Claude Code session, under your own account.
+Seahorse is MIT licensed and needs no separate API key. Agents run under your Claude Code account; your plan, usage limits, and any associated charges still apply.
 
 **I already have Claude Code agents. Can I use Seahorse?**
 Yes. Any `.claude/commands/*.md` file with an `# IDENTITY: <role>` line counts as an agent. Run Setup on your repo: it adds only what's missing and never overwrites files.

@@ -46,34 +46,44 @@
 }
 
 * { box-sizing: border-box; }
-html, body { margin: 0; }
+html, body { margin: 0; scrollbar-color: var(--rule-strong) var(--paper); }
+html { scroll-padding-top: 80px; }
 body { background: var(--paper); color: var(--ink); font: 14px/1.55 var(--sans); }
 button, input, select { font: inherit; color: inherit; }
+textarea { font: inherit; }
+input, textarea { caret-color: var(--blue); }
+::selection { background: var(--blue-wash); color: var(--ink); }
+[hidden] { display: none !important; }
 a { color: var(--blue); text-underline-offset: 2px; }
 .mono, code, pre { font-family: var(--mono); font-size: 12.5px; }
 :focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
 
 /* ---------- masthead ---------- */
 header {
-  display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px 28px;
-  padding: 18px 28px 0; border-bottom: 3px double var(--rule-strong); background: var(--paper);
-  position: sticky; top: 0; z-index: 5;
+  position: fixed; inset: 0 auto 0 0; width: 224px; z-index: 5;
+  display: flex; flex-direction: column; padding: 28px 16px 18px; background: var(--paper); overflow-y: auto;
 }
-.brand { padding-bottom: 12px; }
+.brand { padding: 0 12px 26px; }
 .wordmark { font-family: var(--serif); font-style: italic; font-size: 26px; line-height: 1; margin: 0; font-weight: 600; }
-.brand .sub { color: var(--ink-2); font-size: 12.5px; margin-top: 4px; }
-nav { display: flex; gap: 2px; align-self: flex-end; }
+.brand .sub { color: var(--ink-2); font-size: 12px; margin-top: 10px; overflow-wrap: anywhere; }
+nav { display: flex; flex-direction: column; gap: 3px; width: 100%; }
+.nav-group { font-size: 11.5px; color: var(--ink-2); margin: 24px 12px 5px; }
+.nav-group:first-child { margin-top: 4px; }
 nav a {
-  display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 12px;
-  text-decoration: none; color: var(--ink-2); border-bottom: 2px solid transparent; margin-bottom: -2px;
-  font-family: var(--serif); font-size: 16px;
+  display: flex; align-items: center; gap: 10px; min-height: 42px; padding: 0 12px;
+  text-decoration: none; color: var(--ink-2); border-radius: 4px; font-size: 13px;
 }
-nav a:hover { color: var(--ink); }
-nav a[aria-current="page"] { color: var(--ink); border-bottom-color: var(--blue); }
-nav .count { font-family: var(--sans); font-size: 12px; color: var(--ink-2); }
-.meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin-left: auto; padding-bottom: 12px; color: var(--ink-2); font-size: 13px; }
+.icon { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+nav a:hover { color: var(--ink); background: var(--paper-2); }
+nav a[aria-current="page"] { color: var(--ink); background: var(--paper-2); font-weight: 600; }
+nav .count { margin-left: auto; font-size: 11px; font-variant-numeric: tabular-nums; }
+nav .attention-count { color: var(--red); }
+.meta { display: flex; flex-direction: column; align-items: stretch; gap: 12px; margin-top: auto; padding: 24px 12px 0; color: var(--ink-2); font-size: 12px; }
+.meta #setup-link { display: inline-flex; align-items: center; gap: 10px; min-height: 36px; text-decoration: none; color: var(--ink-2); }
+.meta #setup-link[aria-current] { color: var(--ink); font-weight: 600; }
+.meta .theme-btn { text-align: left; }
 .live { display: inline-flex; align-items: center; gap: 6px; }
-.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--rule-strong); }
+.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--rule-strong); flex: none; }
 .live.on .dot { background: var(--blue); }
 .live.off .dot { background: var(--red); }
 .theme-btn {
@@ -81,11 +91,23 @@ nav .count { font-family: var(--sans); font-size: 12px; color: var(--ink-2); }
   cursor: pointer; color: var(--ink-2); font-size: 12.5px;
 }
 .theme-btn:hover { color: var(--ink); border-color: var(--ink-2); }
+.workspace-shell { margin-left: 224px; min-height: 100vh; background: var(--card); border-left: 1px solid var(--rule); }
+.workspace-topbar { min-height: 64px; padding: 12px 32px; border-bottom: 1px solid var(--rule); display: flex; align-items: center; gap: 12px; }
+.breadcrumb { display: flex; align-items: center; gap: 12px; color: var(--ink-2); font-size: 12px; }
+.breadcrumb strong { color: var(--ink); font-weight: 500; }
+.topbar-active { margin-left: auto; color: var(--ink-2); font-size: 12px; }
+.topbar-active a { color: var(--ink); text-decoration: none; }
+.search-trigger { display: inline-flex; align-items: center; gap: 8px; background: transparent; border: 1px solid var(--rule); border-radius: 4px; min-height: 34px; padding: 0 10px; color: var(--ink-2); cursor: pointer; font-size: 12px; }
+.search-trigger:hover { color: var(--ink); border-color: var(--rule-strong); }
+kbd { font: 11px var(--sans); border: 1px solid var(--rule); border-radius: 3px; padding: 2px 4px; color: var(--ink-2); }
+.menu-toggle { display: none; }
+.skip-link { position: fixed; top: -60px; left: 12px; z-index: 30; background: var(--blue); color: var(--on-blue); padding: 10px 16px; }
+.skip-link:focus { top: 12px; }
 
 /* ---------- page ---------- */
-main { padding: 24px 28px 56px; max-width: 1480px; margin: 0 auto; }
-.page-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; margin: 0 0 18px; }
-.page-head h2 { font-family: var(--serif); font-size: 28px; font-weight: 600; margin: 0; }
+main { padding: 30px 32px 56px; max-width: 1480px; margin: 0 auto; }
+.page-head { display: flex; flex-direction: column; gap: 4px; margin: 0 0 24px; }
+.page-head h2 { font-family: var(--serif); font-size: 28px; line-height: 1.25; font-weight: 600; margin: 0; }
 .page-head p { margin: 0; color: var(--ink-2); }
 h3.rule {
   font-family: var(--serif); font-size: 17px; font-weight: 600; margin: 28px 0 10px; padding-bottom: 4px;
@@ -105,6 +127,7 @@ h3.rule small { font-family: var(--sans); font-size: 12.5px; font-weight: 400; c
 .toolbar label.check { display: inline-flex; align-items: center; gap: 8px; color: var(--ink-2); padding: 0 6px; min-height: 40px; cursor: pointer; }
 .toolbar label.check input { width: 16px; height: 16px; accent-color: var(--blue); }
 .summary { color: var(--ink-2); font-size: 13px; margin-left: auto; }
+.summary, .count, .badge { font-variant-numeric: tabular-nums; }
 .btn {
   display: inline-flex; align-items: center; min-height: 40px; padding: 0 14px; border-radius: 4px; cursor: pointer;
   background: var(--blue); color: var(--on-blue); border: 1px solid var(--blue); font-weight: 600;
@@ -135,7 +158,7 @@ body.dragging .zone.valid.over { background: var(--red-wash); border-style: soli
 
 /* ---------- board ---------- */
 .board { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(290px, 100%), 1fr)); gap: 18px; align-items: start; }
-.column { background: var(--paper-2); border-radius: 4px; padding: 4px 10px 10px; min-width: 0; }
+.column { background: var(--paper); border-radius: 4px; padding: 4px 10px 10px; min-width: 0; }
 .column h3 {
   font-family: var(--serif); font-size: 17px; font-weight: 600; margin: 8px 2px 10px; padding-bottom: 4px;
   border-bottom: 3px double var(--rule-strong); display: flex; justify-content: space-between; align-items: baseline;
@@ -152,11 +175,18 @@ body.dragging .zone.valid.over { background: var(--red-wash); border-style: soli
 .card.drag-source { opacity: 0.5; }
 .card .top { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
 .card .id { color: var(--ink-2); font-size: 12px; }
-.card .title { font-weight: 550; overflow-wrap: anywhere; }
+.card .title { font-weight: 600; overflow-wrap: anywhere; line-height: 1.45; }
 .card .foot { display: flex; flex-wrap: wrap; gap: 2px 10px; margin-top: 6px; color: var(--ink-2); font-size: 12.5px; }
 .card.more { text-align: center; color: var(--blue); font-weight: 600; border-style: dashed; min-height: 44px; }
 .lane { margin-bottom: 4px; }
 .lane .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(290px, 100%), 1fr)); gap: 8px; }
+.bench-disclosure { border-bottom: 1px solid var(--rule); padding-bottom: 14px; margin-bottom: 20px; }
+.bench-disclosure > summary { display: flex; gap: 10px; align-items: center; cursor: pointer; min-height: 38px; list-style: none; font-weight: 500; }
+.bench-disclosure > summary::-webkit-details-marker { display: none; }
+.bench-disclosure > summary::after { content: "+"; margin-left: auto; color: var(--ink-2); }
+.bench-disclosure[open] > summary::after { content: "−"; }
+.bench-disclosure > summary span { font-weight: 400; font-size: 12px; color: var(--ink-2); }
+.bench-disclosure .bench { margin-top: 10px; }
 
 .badge {
   display: inline-block; padding: 0 7px; border-radius: 3px; font-size: 11.5px; font-weight: 600; line-height: 18px;
@@ -211,22 +241,35 @@ body.dragging .zone.valid.over { background: var(--red-wash); border-style: soli
 .zone .zpins { color: var(--blue); font-size: 12px; margin-top: 4px; }
 
 /* ---------- workflow ---------- */
-.next { border: 2px solid var(--blue); background: var(--card); border-radius: 4px; padding: 16px 18px; margin-bottom: 8px; }
-.next h3 { font-family: var(--serif); font-size: 19px; font-weight: 600; margin: 0 0 4px; }
-.next p { margin: 0; color: var(--ink-2); }
-.flow { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 28px; margin-top: 4px; }
+.next { border: 1px solid var(--rule-strong); background: var(--paper); border-radius: 4px; padding: 22px 24px; margin-bottom: 28px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px 28px; align-items: center; }
+.next h3 { font-family: var(--serif); font-size: 23px; line-height: 1.3; font-weight: 600; margin: 0 0 6px; }
+.next p { margin: 0; color: var(--ink-2); max-width: 70ch; overflow-wrap: anywhere; }
+.next .actions { margin: 0; max-width: 280px; }
+.next details { grid-column: 1 / -1; border-top: 1px solid var(--rule); padding-top: 12px; }
+.next details summary { color: var(--blue); cursor: pointer; font-size: 12px; }
+.next details p { margin-top: 8px; }
+.workflow-controls { margin: -8px 0 20px; }
+.project-summary { display: flex; gap: 28px; margin-bottom: 22px; padding: 16px 0; border-top: 3px double var(--rule); border-bottom: 1px solid var(--rule); flex-wrap: wrap; }
+.project-summary > div { display: flex; align-items: baseline; gap: 8px; color: var(--ink-2); font-size: 12px; }
+.project-summary strong { color: var(--ink); font-size: 20px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.project-summary .needs-attention strong { color: var(--red); }
+.flow { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; margin-top: 4px; }
 .stage { position: relative; border-top: 3px double var(--rule-strong); padding-top: 8px; min-width: 0; }
 .stage:not(:last-child)::after {
-  content: ""; position: absolute; right: -19px; top: 14px; width: 9px; height: 9px;
+  content: ""; position: absolute; right: -10px; top: 14px; width: 5px; height: 5px;
   border-top: 2px solid var(--rule-strong); border-right: 2px solid var(--rule-strong); transform: rotate(45deg);
 }
 .stage-head { font-family: var(--serif); font-size: 16px; font-weight: 600; margin-bottom: 8px; display: flex; gap: 8px; align-items: baseline; }
 .stage-head small { font-family: var(--sans); font-size: 12px; font-weight: 400; color: var(--ink-2); }
 .stage.current { border-top: 3px solid var(--red); }
 .stage.current .stage-head { color: var(--red); }
-.node { background: var(--card); border: 1px solid var(--rule); border-radius: 4px; padding: 10px 12px; margin-bottom: 8px; }
-.node .nname { font-weight: 600; display: flex; justify-content: space-between; gap: 8px; align-items: center; }
-.node .nlast { color: var(--ink-2); font-size: 12.5px; margin-top: 4px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.node { background: var(--card); border: 1px solid var(--rule); border-radius: 4px; padding: 12px; margin-bottom: 8px; }
+.node .nname { font-weight: 600; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px; align-items: center; font-size: 13px; }
+.node .nname a { text-decoration: none; }
+.node .nname a:hover { text-decoration: underline; }
+.node .nmeta { font-size: 11.5px; color: var(--ink-2); margin-top: 8px; }
+.node.awaiting { border-color: var(--rule-strong); }
+.node .nlast { color: var(--ink-2); font-size: 12.5px; margin-top: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .log { display: flex; flex-direction: column; }
 .log .entry-line { display: grid; grid-template-columns: 150px 150px minmax(0, 1fr); gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--rule); align-items: baseline; }
 .log .entry-line .who { font-weight: 600; }
@@ -329,6 +372,7 @@ pre.json { background: var(--paper-2); padding: 8px 10px; border-radius: 4px; ov
 .md ul { padding-left: 20px; margin: 6px 0; }
 .md li { overflow-wrap: anywhere; }
 .md li.task { list-style: none; margin-left: -18px; }
+.md li.task input { accent-color: var(--blue); vertical-align: middle; margin: 0 6px 0 0; }
 .md pre { background: var(--paper-2); padding: 8px 10px; border-radius: 4px; overflow-x: auto; }
 .md :not(pre) > code { background: var(--paper-2); padding: 0 4px; border-radius: 3px; }
 
@@ -342,12 +386,50 @@ pre.json { background: var(--paper-2); padding: 8px 10px; border-radius: 4px; ov
 .toast .row { display: flex; gap: 12px; align-items: flex-start; }
 .toast .row > div { flex: 1; min-width: 0; }
 .toast pre { white-space: pre-wrap; word-break: break-all; background: var(--paper-2); padding: 6px 8px; border-radius: 4px; margin: 8px 0 0; }
+.search-field { width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid var(--rule-strong); border-radius: 4px; background: var(--card); margin: 20px 0 12px; }
+.search-result { display: flex; align-items: center; gap: 12px; text-align: left; width: 100%; border: 0; border-bottom: 1px solid var(--rule); background: transparent; padding: 12px 4px; cursor: pointer; }
+.search-result:hover { background: var(--paper-2); }
+.search-result > div { flex: 1; min-width: 0; }
+.search-result strong { display: block; font-size: 14px; font-weight: 500; overflow-wrap: anywhere; }
+.search-result small { color: var(--ink-2); font-size: 12px; }
+.result-count { color: var(--ink-2); font-size: 12px; margin: 12px 0 4px; }
+body.drawer-open { overflow: hidden; }
+
+@media (min-width: 761px) and (max-width: 1150px) {
+  header { width: 190px; padding-left: 10px; padding-right: 10px; }
+  .workspace-shell { margin-left: 190px; }
+  .workspace-topbar, main { padding-left: 24px; padding-right: 24px; }
+  .flow { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+  .stage::after { display: none; }
+  .next { grid-template-columns: 1fr; }
+  .next .actions { max-width: none; }
+  .project { grid-template-columns: 1fr; gap: 10px; }
+  .project .right { justify-content: flex-start; }
+}
 
 @media (max-width: 760px) {
-  header { padding: 14px 16px 0; gap: 4px 16px; }
-  .meta { margin-left: 0; width: 100%; order: 2; padding-bottom: 6px; }
-  nav { order: 3; width: 100%; overflow-x: auto; scrollbar-width: none; }
-  nav a { min-height: 44px; flex: none; }
+  header { position: sticky; inset: auto; top: 0; width: 100%; max-height: 100dvh; padding: 16px; display: grid; grid-template-columns: 1fr auto; border-bottom: 1px solid var(--rule); }
+  .brand { padding: 0; }
+  .brand .sub { margin-top: 5px; }
+  .wordmark { font-size: 23px; }
+  .menu-toggle { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; }
+  nav, .meta { display: none; grid-column: 1 / -1; }
+  header.nav-expanded nav { display: flex; max-height: 50vh; overflow-y: auto; margin-top: 12px; }
+  header.nav-expanded .meta { display: flex; gap: 10px; padding-top: 16px; }
+  nav a { min-height: 44px; }
+  .workspace-shell { margin-left: 0; border-left: 0; }
+  .workspace-topbar { min-height: 52px; padding: 8px 16px; flex-wrap: wrap; gap: 8px; }
+  .breadcrumb > span { display: none; }
+  .topbar-active { font-size: 11.5px; }
+  .search-trigger { min-height: 44px; }
+  .search-trigger kbd, .search-trigger .search-label { display: none; }
+  .next { grid-template-columns: 1fr; padding: 18px; gap: 16px; }
+  .next h3 { font-size: 21px; }
+  .next .actions { max-width: none; }
+  .next .btn { justify-content: center; }
+  .project-summary { gap: 10px 22px; }
+  .project-summary strong { font-size: 18px; }
+  .bench-disclosure > summary span { display: none; }
   .flow { grid-template-columns: 1fr; gap: 22px; }
   .stage:not(:last-child)::after { right: auto; left: 50%; top: auto; bottom: -16px; transform: rotate(135deg); }
   .log .entry-line { grid-template-columns: 1fr; gap: 2px; }
@@ -373,26 +455,36 @@ pre.json { background: var(--paper-2); padding: 8px 10px; border-radius: 4px; ov
 </style>
 </head>
 <body>
-<header>
+<a class="skip-link" href="#main">Skip to content</a>
+<header id="sidebar">
   <div class="brand">
     <h1 class="wordmark">Seahorse</h1>
     <div class="sub" id="ws">Field notes</div>
   </div>
+  <button class="theme-btn menu-toggle" id="menu-toggle" type="button" aria-expanded="false" aria-controls="nav">Menu</button>
   <nav id="nav" aria-label="Views"></nav>
   <div class="meta">
-    <span id="active"></span>
     <a href="#/setup" id="setup-link" hidden>Setup</a>
     <span class="live" id="live"><span class="dot" aria-hidden="true"></span><span id="live-text">Connecting</span></span>
     <button class="theme-btn" id="theme" type="button"></button>
   </div>
 </header>
-<main id="main"><p class="loading">Reading orchestrator files…</p></main>
+<div class="workspace-shell" id="workspace-shell">
+  <div class="workspace-topbar">
+    <div class="breadcrumb"><span>Workspace /</span><strong id="view-title">Workflow</strong></div>
+    <span id="active" class="topbar-active"></span>
+    <button class="search-trigger" type="button" data-search aria-label="Search workspace (Control or Command K)">Search <kbd>⌘ K</kbd></button>
+  </div>
+  <main id="main" tabindex="-1"><p class="loading">Reading orchestrator files…</p></main>
+</div>
 <div id="drawer-root"></div>
 <div id="toast-root" aria-live="polite"></div>
 
 <script>
 const TOKEN = '__BOARD_TOKEN__';
 const ROLES = {
+  api_agent: { name: 'API agent', hint: 'Its tasks in the active project' },
+  web_agent: { name: 'Web agent', hint: 'Its tasks in the active project' },
   lead_agent: { name: 'Lead', hint: 'Backlog items: triage into a project' },
   feature_strategist: { name: 'Strategist', hint: 'Backlog items: scope an idea' },
   backend_agent: { name: 'Backend', hint: 'Its tasks in the active project' },
@@ -412,6 +504,7 @@ const PHASES = ['task_defined', 'research', 'spec_ready', 'implementation', 'rev
 
 let state = null;
 const ui = {
+  globalQ: '', benchOpen: false, laneOpen: false,
   q: '', priority: '', assignee: '', kind: '', showDone: false,
   lessonQ: '', severity: '', lessonOpenOnly: false, showRetired: false,
   workflowProject: '', workflowActiveSeen: undefined, logLimit: 12,
@@ -450,8 +543,51 @@ const projectList = () => {
   return (state?.projects ?? []).map((p) => ({ ...p, meta: meta[p.id] ?? {} }))
     .sort((a, b) => String(b.meta.created_at ?? '').localeCompare(String(a.meta.created_at ?? '')));
 };
-const projectStatus = (p) => p.status?.overall_status ?? p.meta.status;
+const projectStatus = (p) => p?.status?.overall_status ?? p?.meta?.status;
 const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
+const ICON_PATHS = {
+  workflow: '<path d="M4 5h6v5H4zM14 14h6v5h-6zM7 10v6h7M10 7h7v7"/>',
+  backlog: '<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 4v16M15 4v16"/>',
+  projects: '<path d="M3 7V5a1 1 0 0 1 1-1h6l2 3h8a1 1 0 0 1 1 1v11H3z"/>',
+  agents: '<circle cx="9" cy="8" r="3"/><path d="M3 20v-3a6 6 0 0 1 12 0v3M16 5a3 3 0 0 1 0 6M18 14a5 5 0 0 1 3 5"/>',
+  skills: '<path d="m13 3-9 11h7l-1 7 10-12h-7z"/>',
+  lessons: '<path d="M12 5c-3-2-6-2-9-1v15c3-1 6-1 9 1 3-2 6-2 9-1V4c-3-1-6-1-9 1v15"/>',
+  feedback: '<path d="M21 4H3v13h5l4 4v-4h9zM7 8h10M7 12h6"/>',
+  setup: '<path d="m4 7 3 3 5-6M13 8h7M4 16l3 3 5-6M13 17h7"/>',
+  search: '<circle cx="10" cy="10" r="6"/><path d="m15 15 6 6"/>',
+};
+const icon = (name) => `<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">${ICON_PATHS[name] ?? ICON_PATHS.projects}</svg>`;
+
+function pendingReports(p) {
+  if (!p) return [];
+  const statusAt = String(p.status?.updated_at ?? '');
+  return Object.entries(p.messages ?? {})
+    .filter(([role]) => role !== 'lead_agent')
+    .map(([role, arr]) => ({ role, m: latestEntry(arr) }))
+    .filter(({ m }) => m?.status === 'done' && String(m.updated_at ?? '') > statusAt)
+    .sort((a, b) => String(b.m.updated_at).localeCompare(String(a.m.updated_at)));
+}
+
+function readyTasks(p) {
+  const done = new Set((p?.tasks ?? []).filter((t) => t.status === 'done').map((t) => t.task_id));
+  return (p?.tasks ?? []).filter((t) => t.status === 'pending' && (t.dependencies ?? []).every((d) => done.has(d)));
+}
+
+function taskDisplayStatus(t, p) {
+  return pendingReports(p).some(({ role, m }) => role === t.assigned_to && String(m.approach_summary ?? '').includes(`[${t.task_id}]`))
+    && t.status !== 'done' ? 'awaiting_lead' : t.status;
+}
+
+function reportTime(iso) {
+  const value = new Date(iso);
+  if (!iso || isNaN(value)) return '';
+  const minutes = Math.floor((Date.now() - value.getTime()) / 60000);
+  if (minutes < 0) return fmtDay(iso);
+  if (minutes < 1) return 'just now';
+  if (minutes < 60) return `${minutes}m ago`;
+  if (minutes < 1440) return `${Math.floor(minutes / 60)}h ago`;
+  return fmtDay(iso);
+}
 
 function verdictOf(p) {
   const msgs = p.messages?.reviewer_agent;
@@ -490,7 +626,7 @@ function renderMarkdown(src) {
     if ((m = line.match(/^(#{1,4})\s+(.*)$/))) { closeList(); out.push(`<h${m[1].length}>${inline(m[2])}</h${m[1].length}>`); continue; }
     if ((m = line.match(/^\s*[-*]\s+\[([ xX])\]\s+(.*)$/))) {
       if (!inList) { out.push('<ul>'); inList = true; }
-      out.push(`<li class="task">${m[1].trim() ? '☑' : '☐'} ${inline(m[2])}</li>`); continue;
+      out.push(`<li class="task"><input type="checkbox" disabled ${m[1].trim() ? 'checked' : ''} aria-label="${m[1].trim() ? 'Complete' : 'Incomplete'}">${inline(m[2])}</li>`); continue;
     }
     if ((m = line.match(/^\s*[-*]\s+(.*)$/))) {
       if (!inList) { out.push('<ul>'); inList = true; }
@@ -529,31 +665,35 @@ function route() {
     if (view !== 'skills' && view !== 'setup') history.replaceState(null, '', '#/setup');
     return view === 'skills' ? 'skills' : 'setup';
   }
-  return VIEWS.includes(view) ? view : 'backlog';
+  return VIEWS.includes(view) ? view : 'workflow';
 }
 
 function renderHeader() {
-  document.getElementById('ws').textContent = state.workspace ? `Field notes for ${state.workspace}` : 'Field notes';
+  document.getElementById('ws').textContent = state.workspace || 'Your workspace';
   const active = state.orchestrator?.active_project;
   document.getElementById('active').innerHTML = active
-    ? `Active: <a href="#/projects" data-open-project="${esc(active)}">${esc(active)}</a>`
+    ? `Project <a href="#/projects" data-open-project="${esc(active)}">${esc(active)}</a>`
     : 'No active project';
   const view = route();
   const open = items().filter((i) => i.status !== 'done').length;
   const repeats = openRepeats().length;
-  const tabs = state.configured ? [
-    ['backlog', 'Backlog', `${open} open`],
-    ['workflow', 'Workflow', state.orchestrator?.active_project ? 'running' : ''],
-    ['projects', 'Projects', projectList().length],
-    ['agents', 'Agents', Object.keys(agents()).length],
-    ['skills', 'Skills', market.data ? market.data.installed.length || '' : ''],
-    ['lessons', 'Lessons', lessons().length],
-    ['feedback', 'Feedback', repeats ? `${repeats} repeating` : ''],
-  ] : [['setup', 'Setup', ''], ['skills', 'Skills', '']];
+  const reports = pendingReports(activeProject()).length;
+  const groups = state.configured ? [
+    ['Work', [['workflow', 'Workflow', reports ? `${reports} to relay` : ''], ['backlog', 'Backlog', open], ['projects', 'Projects', '']]],
+    ['Team', [['agents', 'Agents', ''], ['skills', 'Skills', '']]],
+    ['Memory', [['lessons', 'Lessons', ''], ['feedback', 'Feedback', repeats ? `${repeats} ${repeats === 1 ? 'repeat' : 'repeats'}` : '']]],
+  ] : [['Workspace', [['setup', 'Setup', ''], ['skills', 'Skills', '']]]];
+  document.getElementById('view-title').textContent = cap(view);
+  document.title = `${cap(view)} · Seahorse`;
+  document.querySelector('[data-search]').innerHTML = `${icon('search')}<span class="search-label">Search</span><kbd>${/Mac|iPhone|iPad/.test(navigator.platform) ? '⌘' : 'Ctrl'} K</kbd>`;
   document.getElementById('setup-link').hidden = !state.configured;
-  document.getElementById('setup-link').toggleAttribute('aria-current', route() === 'setup');
-  document.getElementById('nav').innerHTML = tabs.map(([id, name, count]) =>
-    `<a href="#/${id}" ${view === id ? 'aria-current="page"' : ''}>${name}<span class="count">${esc(count)}</span></a>`).join('');
+  if (view === 'setup') document.getElementById('setup-link').setAttribute('aria-current', 'page');
+  else document.getElementById('setup-link').removeAttribute('aria-current');
+  document.getElementById('setup-link').innerHTML = `${icon('setup')}Workspace setup`;
+  const focusedNav = document.activeElement?.closest('#nav a')?.getAttribute('href');
+  document.getElementById('nav').innerHTML = groups.map(([name, tabs]) => `<div class="nav-group">${name}</div>${tabs.map(([id, name, count]) =>
+    `<a href="#/${id}" ${view === id ? 'aria-current="page"' : ''}>${icon(id)}${name}${count !== '' ? `<span class="count ${id === 'feedback' || id === 'workflow' ? 'attention-count' : ''}">${esc(count)}</span>` : ''}</a>`).join('')}`).join('');
+  if (focusedNav) [...document.querySelectorAll('#nav a')].find((el) => el.getAttribute('href') === focusedNav)?.focus({ preventScroll: true });
 }
 
 // ---------- backlog ----------
@@ -591,7 +731,7 @@ function renderBacklog(main) {
   main.innerHTML = `
     <div class="page-head"><h2>Backlog</h2><p>${open} open, ${all.length - open} done</p></div>
     ${renderBench()}
-    ${renderActiveLane()}
+    ${activeProject() ? `<details class="bench-disclosure" id="active-tasks" ${ui.laneOpen ? 'open' : ''}><summary>Active project tasks <span>${esc(activeProject().id)} · ${plural(activeProject().tasks.filter((t) => t.status !== 'done').length, 'open task')}</span></summary>${renderActiveLane()}</details>` : ''}
     <div class="toolbar">
       <input type="search" id="q" placeholder="Search titles, descriptions, labels" aria-label="Search backlog" value="${esc(ui.q)}">
       <select id="f-priority" aria-label="Priority">${options(priorities, ui.priority, 'Any priority')}</select>
@@ -625,6 +765,8 @@ function renderBacklog(main) {
   bind('f-assignee', 'assignee');
   bind('f-kind', 'kind');
   bind('f-done', 'showDone', 'change', 'checked');
+  document.getElementById('agent-bench')?.addEventListener('toggle', (e) => { if (!drag) ui.benchOpen = e.target.open; });
+  document.getElementById('active-tasks')?.addEventListener('toggle', (e) => { ui.laneOpen = e.target.open; });
   document.getElementById('show-done')?.addEventListener('click', () => { ui.showDone = true; render(); });
   document.getElementById('clear')?.addEventListener('click', () => { Object.assign(ui, { q: '', priority: '', assignee: '', kind: '' }); render(); });
 }
@@ -641,7 +783,7 @@ function itemCard(i) {
     <div class="top"><span class="id mono">${esc(i.id)}</span>${prioBadge(i.priority)}</div>
     <div class="title">${esc(i.title)}</div>
     <div class="foot">
-      ${i.assigned_to ? `<span>${esc(cap(i.assigned_to))}</span>` : ''}
+      ${i.assigned_to ? `<span>${esc(roleName(i.assigned_to))}</span>` : ''}
       ${i.resolved_in_project ? `<span>Resolved in ${esc(i.resolved_in_project)}</span>` : ''}
       ${(i.labels ?? []).slice(0, 3).map((l) => `<span class="tag">#${esc(l)}</span>`).join('')}
     </div>
@@ -655,14 +797,14 @@ function renderBench() {
     return `<h3 class="rule">Hand off to an agent</h3>
       <div class="empty">No agent commands found in this workspace's .claude/commands folder.</div>`;
   }
-  return `<h3 class="rule">Hand off to an agent <small class="bench-hint">Drag a card onto an agent, or open the card and use its buttons</small></h3>
+  return `<details class="bench-disclosure" id="agent-bench" ${ui.benchOpen ? 'open' : ''}><summary>Hand off to an agent <span>Drag a card here, or open it to choose an agent</span></summary>
     <p class="touch-note">Open a card and use its Send to buttons to start an agent.</p>
     <div class="bench" aria-label="Agents">${roles.map((r) => `<div class="zone" data-drop-agent="${esc(r)}">
       <div class="zname">${esc(roleName(r))}</div>
       <div class="zcmd mono">${esc(agents()[r])}</div>
       <div class="zhint">${ROLES[r]?.hint ?? 'Its tasks in the active project'}</div>
       ${(state.reminders?.[r] ?? []).length ? `<div class="zpins">Reminds ${esc(state.reminders[r].join(', '))}</div>` : ''}
-    </div>`).join('')}</div>`;
+    </div>`).join('')}</div></details>`;
 }
 
 function activeProject() {
@@ -678,9 +820,9 @@ function renderActiveLane() {
     <h3 class="rule">Active project: ${esc(p.id)} <small>${plural(open.length, 'open task')}</small></h3>
     <div class="cards">${open.map((t) => `<div class="card" role="button" tabindex="0" data-open-project="${esc(p.id)}"
         draggable="true" data-drag-kind="task" data-drag-id="${esc(t.task_id)}" data-drag-project="${esc(p.id)}" data-drag-agent="${esc(t.assigned_to)}">
-      <div class="top"><span class="id mono">${esc(t.task_id)}</span>${statusBadge(t.status)}</div>
+      <div class="top"><span class="id mono">${esc(t.task_id)}</span>${statusBadge(taskDisplayStatus(t, p))}</div>
       <div class="title">${esc(t.title)}</div>
-      <div class="foot"><span>${esc(cap(t.assigned_to))}</span></div>
+      <div class="foot"><span>${esc(roleName(t.assigned_to))}</span></div>
     </div>`).join('') || '<div class="empty">Every task in this project is done. The lead closes it after review.</div>'}</div>
   </section>`;
 }
@@ -735,6 +877,8 @@ document.addEventListener('dragstart', (e) => {
   const card = e.target.closest?.('[data-drag-kind]');
   if (!card) return;
   drag = { kind: card.dataset.dragKind, id: card.dataset.dragId, project: card.dataset.dragProject, assigned: card.dataset.dragAgent };
+  const bench = document.getElementById('agent-bench');
+  if (bench) { drag.benchWasOpen = bench.open; bench.open = true; }
   e.dataTransfer.effectAllowed = 'copy';
   e.dataTransfer.setData('text/plain', drag.id);
   card.classList.add('drag-source');
@@ -746,6 +890,8 @@ document.addEventListener('dragend', (e) => {
   e.target.closest?.('[data-drag-kind]')?.classList.remove('drag-source');
   document.body.classList.remove('dragging');
   document.querySelectorAll('.zone.over').forEach((z) => z.classList.remove('over'));
+  const bench = document.getElementById('agent-bench');
+  if (bench && drag) bench.open = drag.benchWasOpen;
   drag = null;
   if (pendingReload) { pendingReload = false; load(); }
 });
@@ -1160,19 +1306,15 @@ function nextStep(p) {
       buttons: launchButtons(['lead_agent', 'feature_strategist'], { kind: 'item', id: top.id }),
     };
   }
-  const statusAt = String(p.status?.updated_at ?? '');
   // 1. A worker reported done after the lead last updated status.json: relay it to the lead.
-  const reports = Object.entries(p.messages ?? {})
-    .filter(([role]) => role !== 'lead_agent')
-    .map(([role, arr]) => ({ role, m: latestEntry(arr) }))
-    .filter(({ m }) => m && m.status === 'done' && String(m.updated_at ?? '') > statusAt)
-    .sort((a, b) => String(b.m.updated_at).localeCompare(String(a.m.updated_at)));
+  const reports = pendingReports(p);
   if (reports.length && agents().lead_agent) {
     const r = reports[0];
     return {
-      title: `${roleName(r.role)} finished. Tell the Lead.`,
-      text: r.m.approach_summary ?? '',
-      buttons: `<div class="actions"><button type="button" class="btn" data-launch-agent="lead_agent" data-launch-kind="handoff" data-launch-from="${esc(r.role)}" data-launch-project="${esc(p.id)}">Send ${esc(roleName(r.role))}'s report to Lead</button></div>`,
+      title: `${roleName(r.role)}'s report is ready`,
+      text: 'Send the completion report to the Lead to review it and update the project.',
+      report: r.m.approach_summary,
+      buttons: `<div class="actions"><button type="button" class="btn" data-launch-agent="lead_agent" data-launch-kind="handoff" data-launch-from="${esc(r.role)}" data-launch-project="${esc(p.id)}">Send report to Lead</button></div>`,
     };
   }
   // 2. Blockers recorded by the lead.
@@ -1184,8 +1326,7 @@ function nextStep(p) {
     };
   }
   // 3. Pending tasks whose dependencies are all done.
-  const doneIds = new Set(p.tasks.filter((t) => t.status === 'done').map((t) => t.task_id));
-  const ready = p.tasks.filter((t) => t.status === 'pending' && (t.dependencies ?? []).every((d) => doneIds.has(d)));
+  const ready = readyTasks(p);
   if (ready.length) {
     return {
       title: `${plural(ready.length, 'task')} ready to start`,
@@ -1195,7 +1336,7 @@ function nextStep(p) {
   }
   const working = p.tasks.filter((t) => t.status === 'in_progress');
   if (working.length) {
-    return { title: 'Agents are working', text: working.map((t) => `${roleName(t.assigned_to)} on ${t.task_id}`).join(', ') + '. Seahorse will show the next step when one reports back.', buttons: '' };
+    return { title: 'Tasks are in progress', text: working.map((t) => `${roleName(t.assigned_to)} on ${t.task_id}`).join(', ') + '. This is the last recorded task status. The next step appears when an agent reports back.', buttons: '' };
   }
   return { title: 'Waiting on the Lead', text: 'No task is ready and nothing new was reported. The lead decides what happens next.', buttons: launchButtonsAgent('lead_agent', 'Start the Lead') };
 }
@@ -1214,6 +1355,9 @@ function renderWorkflow(main) {
   const step = nextStep(p);
   const phase = p?.status?.phase;
   const agentState = p?.status?.agents ?? {};
+  const reports = pendingReports(p);
+  const awaiting = new Set(reports.map((r) => r.role));
+  const ready = readyTasks(p);
 
   const stages = STAGES.map((s) => {
     const roles = s.key === 'build'
@@ -1225,11 +1369,14 @@ function renderWorkflow(main) {
       ${roles.map((r) => {
         const m = latestEntry(p?.messages?.[r]);
         const tasks = (p?.tasks ?? []).filter((t) => t.assigned_to === r);
-        const st = s.key === 'close' ? (projectStatus(p) === 'done' ? 'done' : 'pending') : agentState[r];
-        return `<div class="node">
+        const pendingReport = s.key !== 'close' && awaiting.has(r);
+        const st = s.key === 'close' ? (projectStatus(p) === 'done' ? 'done' : 'pending') : pendingReport ? 'awaiting_lead' : agentState[r];
+        return `<div class="node ${pendingReport ? 'awaiting' : ''}">
           <div class="nname"><a href="#/agents" data-open-agent="${esc(r)}">${esc(roleName(r))}</a>${statusBadge(st)}</div>
           ${tasks.length && s.key !== 'close' ? `<div class="label-sm">${tasks.filter((t) => t.status === 'done').length} of ${plural(tasks.length, 'task')} done</div>` : ''}
+          ${pendingReport ? '<div class="nmeta">Awaiting task update</div>' : ''}
           ${m && s.key !== 'close' ? `<div class="nlast">${esc(m.approach_summary)}</div>` : ''}
+          ${m?.updated_at && s.key !== 'close' ? `<div class="nmeta" title="${esc(fmtDate(m.updated_at))}">Last report ${esc(reportTime(m.updated_at))}</div>` : ''}
         </div>`;
       }).join('')}
     </div>`;
@@ -1245,18 +1392,23 @@ function renderWorkflow(main) {
 
   main.innerHTML = `
     <div class="page-head"><h2>Workflow</h2><p>How work moves between agents, and what to start next</p></div>
-    <div class="next">
-      <h3>${esc(step.title)}</h3>
-      ${step.text ? `<p>${esc(step.text)}</p>` : ''}
-      ${step.buttons}
-    </div>
-    <div class="toolbar">
+    <div class="toolbar workflow-controls">
       <label class="label-sm" for="wf-project">Project</label>
       <select id="wf-project" class="select-inline">${list.map((x) => `<option value="${esc(x.id)}" ${x.id === ui.workflowProject ? 'selected' : ''}>${esc(x.id)}${x.id === activeId ? ' (active)' : ''}</option>`).join('')}</select>
       ${p ? `<button type="button" class="btn secondary" data-open-project="${esc(p.id)}">Open project details</button>` : ''}
     </div>
+    ${p ? `<div class="project-summary" aria-label="Project summary">
+      <div><strong>${p.tasks.filter((t) => t.status === 'done').length} / ${p.tasks.length}</strong><span>tasks complete</span></div>
+      <div><strong>${ready.length}</strong><span>ready to start</span></div>
+      <div class="${reports.length ? 'needs-attention' : ''}"><strong>${reports.length}</strong><span>${reports.length === 1 ? 'report' : 'reports'} awaiting Lead</span></div>
+    </div>` : ''}
+    <section class="next" aria-label="Next action">
+      <div><h3>${esc(step.title)}</h3>${step.text ? `<p>${esc(step.text)}</p>` : ''}</div>
+      ${step.buttons}
+      ${step.report ? `<details id="next-report"><summary>Read the completion report</summary><p>${esc(step.report)}</p></details>` : ''}
+    </section>
     ${p ? `<div class="flow" aria-label="Stages">${stages}</div>` : '<div class="empty">No projects yet. The lead creates one from a handoff or a backlog item.</div>'}
-    ${p ? `<h3 class="rule">Handoff log <small>${plural(log.length, 'entry').replace('entrys', 'entries')}</small></h3>
+    ${p ? `<h3 class="rule">Recent activity <small>${plural(log.length, 'entry').replace('entrys', 'entries')}</small></h3>
       <div class="log">${log.slice(0, ui.logLimit).map((x) => `<div class="entry-line">
         <span class="tag">${fmtDate(x.when)}</span>
         <span><span class="who">${esc(x.who)}</span> <span class="tag">${esc(x.what)}</span></span>
@@ -1927,20 +2079,56 @@ async function applyOnboarding() {
 
 // ---------- detail panel ----------
 let lastFocus = null;
+function searchDrawer() {
+  return {
+    eyebrow: '', title: 'Search workspace',
+    body: `<input class="search-field" type="search" id="workspace-search" aria-label="Search tasks, projects, lessons and agents" placeholder="Search tasks, projects, lessons, agents…" value="${esc(ui.globalQ)}" autocomplete="off">
+      <div id="search-results">${searchResults()}</div>`,
+    after: () => document.getElementById('workspace-search').addEventListener('input', (e) => {
+      ui.globalQ = e.target.value;
+      document.getElementById('search-results').innerHTML = searchResults();
+    }),
+  };
+}
+
+function searchResults() {
+  const query = ui.globalQ.trim().toLowerCase();
+  if (!query) return '<div class="empty">Find work or revisit what the team learned. Search by title, ID, agent, or a phrase.</div>';
+  const candidates = [
+    ...items().map((i) => ({ type: 'item', id: i.id, title: i.title, meta: `Backlog · ${i.id} · ${label(i.status)}`, text: i.description, icon: 'backlog' })),
+    ...projectList().map((p) => ({ type: 'project', id: p.id, title: p.meta.title || p.id, meta: `Project · ${label(p.status?.phase ?? p.meta.status ?? '')}`, text: p.spec?.summary, icon: 'projects' })),
+    ...(state.projects ?? []).flatMap((p) => p.tasks.map((t) => ({ type: 'project', id: p.id, title: t.title, meta: `Task · ${t.task_id} · ${p.id}`, text: `${t.task_id} ${t.description ?? ''} ${roleName(t.assigned_to)}`, icon: 'workflow' }))),
+    ...lessons().map((l) => ({ type: 'lesson', id: l.id, title: l.title, meta: `Lesson · ${l.id}`, text: `${l.description ?? ''} ${l.fix ?? ''}`, icon: 'lessons' })),
+    ...Object.entries(state.agentInfo ?? {}).map(([role, a]) => ({ type: 'agent', id: role, title: roleName(role), meta: `Agent · ${a.command}`, text: a.description, icon: 'agents' })),
+  ];
+  const words = query.split(/\s+/);
+  const matches = candidates.filter((c) => words.every((word) => `${c.id} ${c.title} ${c.meta} ${c.text ?? ''}`.toLowerCase().includes(word)));
+  return `<p class="result-count" role="status">${matches.length ? `${matches.length} ${matches.length === 1 ? 'result' : 'results'}${matches.length > 30 ? ' · showing the first 30' : ''}` : 'No matches. Try a different word or an ID.'}</p>` + matches.slice(0, 30).map((c) =>
+    `<button class="search-result" type="button" data-search-type="${c.type}" data-search-id="${esc(c.id)}">${icon(c.icon)}<div><strong>${esc(c.title)}</strong><small>${esc(c.meta)}</small></div></button>`).join('');
+}
+
 function renderDrawer() {
   const root = document.getElementById('drawer-root');
-  const builders = { item: itemDrawer, project: projectDrawer, lesson: lessonDrawer, agent: agentDrawer, plugin: pluginDrawer, newAgent: newAgentDrawer };
+  const builders = { search: searchDrawer, item: itemDrawer, project: projectDrawer, lesson: lessonDrawer, agent: agentDrawer, plugin: pluginDrawer, newAgent: newAgentDrawer };
   const d = ui.drawer && builders[ui.drawer.type]?.(ui.drawer.id);
-  if (!d) { root.innerHTML = ''; return; }
-  const scroll = root.querySelector('.drawer-body')?.scrollTop ?? 0;
-  const openDetails = [...root.querySelectorAll('details')].map((el) => el.open);
+  document.getElementById('sidebar').inert = !!d;
+  document.getElementById('workspace-shell').inert = !!d;
+  document.querySelector('.skip-link').inert = !!d;
+  document.body.classList.toggle('drawer-open', !!d);
+  if (!d) { root.innerHTML = ''; delete root.dataset.drawerKey; return; }
+  const key = `${ui.drawer.type}:${ui.drawer.id}`;
+  const sameDrawer = root.dataset.drawerKey === key;
+  const scroll = sameDrawer ? root.querySelector('.drawer-body')?.scrollTop ?? 0 : 0;
+  const openDetails = sameDrawer ? [...root.querySelectorAll('details')].map((el) => el.open) : [];
   // Live refreshes must not wipe what someone is typing into a form in the panel.
-  const fields = Object.fromEntries([...root.querySelectorAll('input[id], textarea[id]')].map((el) => [el.id, el.value]));
-  const focused = document.activeElement?.closest?.('#drawer-root') ? document.activeElement.id : null;
+  const fields = sameDrawer ? Object.fromEntries([...root.querySelectorAll('input[id], textarea[id]')].map((el) => [el.id, el.value])) : {};
+  const controls = 'button, a[href], input, select, textarea, summary, [tabindex="0"]';
+  const active = document.activeElement;
+  const focused = sameDrawer && root.contains(active) ? { id: active.id, index: [...root.querySelectorAll(controls)].indexOf(active), start: active.selectionStart, end: active.selectionEnd } : null;
   root.innerHTML = `<div class="scrim" data-close></div>
     <aside class="drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title">
       <div class="drawer-head">
-        <div><div class="eyebrow">${d.eyebrow}</div><h2 id="drawer-title">${d.title}</h2></div>
+        <div>${d.eyebrow ? `<div class="eyebrow">${d.eyebrow}</div>` : ''}<h2 id="drawer-title">${d.title}</h2></div>
         <button class="theme-btn close" type="button" data-close>Close</button>
       </div>
       <div class="drawer-body">${d.body}</div>
@@ -1948,24 +2136,35 @@ function renderDrawer() {
   // Live refreshes re-render the panel; keep the reader's place.
   root.querySelectorAll('details').forEach((el, n) => { if (openDetails[n]) el.open = true; });
   for (const [id, value] of Object.entries(fields)) { const el = document.getElementById(id); if (el && el.type !== 'checkbox') el.value = value; }
-  if (focused) document.getElementById(focused)?.focus();
   root.querySelector('.drawer-body').scrollTop = scroll;
+  root.dataset.drawerKey = key;
   d.after?.();
+  if (focused) {
+    const el = (focused.id && document.getElementById(focused.id)) || root.querySelectorAll(controls)[focused.index] || root.querySelector('.close');
+    el?.focus({ preventScroll: true });
+    if (focused.start != null) { try { el.setSelectionRange(focused.start, focused.end); } catch {} }
+  }
 }
 
 function openDrawer(type, id) {
   if (!ui.drawer) lastFocus = document.activeElement;
   ui.drawer = { type, id };
   renderDrawer();
-  document.querySelector('.drawer .close')?.focus();
+  document.querySelector(type === 'search' ? '#workspace-search' : '.drawer .close')?.focus();
 }
 function closeDrawer() {
   ui.drawer = null;
   renderDrawer();
-  lastFocus?.focus?.();
+  if (lastFocus?.isConnected) lastFocus.focus();
+  else document.querySelector('[data-search]')?.focus();
 }
 
 document.addEventListener('click', (e) => {
+  if (e.target.closest('.skip-link')) { e.preventDefault(); document.getElementById('main').focus(); return; }
+  if (e.target.closest('[data-search]')) return openDrawer('search', 'workspace');
+  const result = e.target.closest('[data-search-type]');
+  if (result) return openDrawer(result.dataset.searchType, result.dataset.searchId);
+  if (e.target.closest('[data-retry-state]')) return load();
   const launchBtn = e.target.closest('[data-launch-agent]');
   if (launchBtn) {
     const d = launchBtn.dataset;
@@ -2031,7 +2230,33 @@ document.addEventListener('click', (e) => {
 });
 
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && ui.drawer) return closeDrawer();
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+    e.preventDefault();
+    if (state) ui.drawer?.type === 'search' ? closeDrawer() : openDrawer('search', 'workspace');
+    return;
+  }
+  if (e.key === 'Escape' && ui.drawer) { e.preventDefault(); return closeDrawer(); }
+  if (e.key === 'Escape' && document.getElementById('sidebar').classList.contains('nav-expanded')) {
+    document.getElementById('sidebar').classList.remove('nav-expanded');
+    document.getElementById('menu-toggle').setAttribute('aria-expanded', 'false');
+    document.getElementById('menu-toggle').focus();
+    return;
+  }
+  if (e.key === 'Tab' && ui.drawer) {
+    const focusable = [...document.querySelectorAll('.drawer button:not(:disabled), .drawer a[href], .drawer input:not(:disabled), .drawer select:not(:disabled), .drawer textarea:not(:disabled), .drawer summary, .drawer [tabindex="0"]')]
+      .filter((el) => el.getClientRects().length);
+    const first = focusable[0], last = focusable.at(-1);
+    if (e.shiftKey && (document.activeElement === first || !document.activeElement.closest('.drawer'))) { e.preventDefault(); last?.focus(); }
+    else if (!e.shiftKey && (document.activeElement === last || !document.activeElement.closest('.drawer'))) { e.preventDefault(); first?.focus(); }
+    return;
+  }
+  if (e.key === '/' && !e.metaKey && !e.ctrlKey && !e.altKey && !ui.drawer && !e.target.closest('input, textarea, select, [contenteditable="true"]')) {
+    e.preventDefault();
+    const search = document.querySelector('#main input[type="search"]');
+    if (search) search.focus();
+    else if (state) openDrawer('search', 'workspace');
+    return;
+  }
   // Cards are divs (buttons don't drag reliably in every browser), so give them button keys.
   if ((e.key === 'Enter' || e.key === ' ') && e.target.matches?.('.card[role="button"]')) {
     e.preventDefault();
@@ -2052,7 +2277,9 @@ function render() {
   // Live refreshes redraw the page; keep the caret where someone is typing.
   const focused = document.activeElement?.closest?.('#main') ? document.activeElement : null;
   const keep = focused?.id ? { id: focused.id, start: focused.selectionStart, end: focused.selectionEnd } : null;
+  const expanded = new Map([...main.querySelectorAll('details[id]')].map((el) => [el.id, el.open]));
   (views[view] ?? renderBacklog)(main);
+  for (const [id, open] of expanded) { const el = document.getElementById(id); if (el) el.open = open; }
   if (keep) {
     const el = document.getElementById(keep.id);
     if (el && el !== document.activeElement) {
@@ -2076,7 +2303,11 @@ async function load() {
     render();
     renderDrawer();
   } catch (err) {
-    document.getElementById('main').innerHTML = `<div class="notice">Couldn't read the workspace (${esc(err.message)}). Check that the Seahorse server is still running, then reload.</div>`;
+    const main = document.getElementById('main');
+    document.getElementById('load-error')?.remove();
+    const notice = `<div class="notice" id="load-error" role="alert">Couldn't refresh the workspace (${esc(err.message)}). ${state ? 'Showing the last loaded state.' : 'Check that the Seahorse server is running.'} <button class="link-btn" type="button" data-retry-state>Try again</button></div>`;
+    if (state) main.insertAdjacentHTML('afterbegin', notice);
+    else main.innerHTML = notice;
   }
 }
 
@@ -2089,7 +2320,16 @@ function connect() {
   es.onerror = () => { live.className = 'live off'; text.textContent = 'Server offline, retrying'; };
 }
 
-window.addEventListener('hashchange', render);
+document.getElementById('menu-toggle').addEventListener('click', () => {
+  const expanded = document.getElementById('sidebar').classList.toggle('nav-expanded');
+  document.getElementById('menu-toggle').setAttribute('aria-expanded', String(expanded));
+});
+window.addEventListener('hashchange', () => {
+  document.getElementById('sidebar').classList.remove('nav-expanded');
+  document.getElementById('menu-toggle').setAttribute('aria-expanded', 'false');
+  render();
+  window.scrollTo({ top: 0, behavior: 'instant' });
+});
 connect();
 load();
 </script>
